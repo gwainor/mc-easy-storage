@@ -192,4 +192,12 @@ public class ItemGateGameTest {
 		helper.assertValueEqual(ShulkerUnloader.takeNext(dyed).getCount(), 9, "stone taken from dyed shulker");
 		helper.succeed();
 	}
+
+	@GameTest
+	public void breakingDropsItemGateItem(GameTestHelper helper) {
+		gate(helper);
+		helper.getLevel().destroyBlock(helper.absolutePos(GATE), true);
+		helper.assertItemEntityPresent(ModBlocks.ITEM_GATE.asItem(), GATE, 2.0);
+		helper.succeed();
+	}
 }
