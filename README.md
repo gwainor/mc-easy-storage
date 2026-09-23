@@ -30,6 +30,18 @@ filter hopper in an SS3 item sorter, without comparators or dummy items.
 - A redstone signal locks it. Comparators read only the 5 buffer slots.
 - Recipe (shapeless): hopper + comparator + observer.
 
+### Item Gate
+
+A barrel-like block that feeds a water-stream sorter. While it holds items it
+drops one stack every 8 ticks out of its output face (the orange-ringed side),
+no redstone clock needed.
+
+- 27 slots, chest-style screen. Hoppers can feed it from any side.
+- Shulker boxes are unloaded stack by stack, then the empty box drops too.
+- Place it looking at the spot where items should come out (like a dropper).
+- A redstone signal pauses it; it waits while the output face is blocked.
+- Recipe (shapeless): barrel + dropper + hopper + repeater.
+
 ## Tests
 
 ```sh
