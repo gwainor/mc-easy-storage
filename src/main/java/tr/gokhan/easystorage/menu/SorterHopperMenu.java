@@ -67,6 +67,15 @@ public class SorterHopperMenu extends AbstractContainerMenu {
 			if (!this.moveItemStackTo(stack, FILTER_SLOT, FILTER_SLOT + 1, false)) {
 				return ItemStack.EMPTY;
 			}
+			// Only one item ever goes into the filter slot. Report EMPTY (rather than the
+			// remaining stack) so AbstractContainerMenu#clicked stops looping instead of
+			// re-invoking us and dumping the rest of the stack into the now-filled filter's buffer.
+			if (stack.isEmpty()) {
+				slot.setByPlayer(ItemStack.EMPTY);
+			} else {
+				slot.setChanged();
+			}
+			return ItemStack.EMPTY;
 		} else if (SorterHopperBlockEntity.matchesFilter(this.filterItem(), stack)) {
 			if (!this.moveItemStackTo(stack, BUFFER_START, BUFFER_END, false)) {
 				return ItemStack.EMPTY;
@@ -81,6 +90,14 @@ public class SorterHopperMenu extends AbstractContainerMenu {
 			slot.setChanged();
 		}
 		return original;
+	}
+
+	@Override
+	public boolean canTakeItemForPickAll(ItemStack carried, Slot target) {
+		if (target.container == this.filter) {
+			return false;
+		}
+		return super.canTakeItemForPickAll(carried, target);
 	}
 
 	@Override

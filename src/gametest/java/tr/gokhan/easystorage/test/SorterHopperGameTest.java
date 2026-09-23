@@ -6,8 +6,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -15,10 +17,13 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.phys.AABB;
 import tr.gokhan.easystorage.block.SorterHopperBlock;
 import tr.gokhan.easystorage.block.entity.SorterHopperBlockEntity;
 import tr.gokhan.easystorage.menu.SorterHopperMenu;
 import tr.gokhan.easystorage.registry.ModBlocks;
+
+import java.util.List;
 
 public class SorterHopperGameTest {
 	private static final BlockPos TOP = new BlockPos(1, 3, 1);
@@ -130,8 +135,12 @@ public class SorterHopperGameTest {
 
 		helper.getLevel().destroyBlock(helper.absolutePos(SORTER), true);
 
-		helper.assertItemEntityPresent(Items.DIAMOND, SORTER, 2.0);
-		helper.assertItemEntityPresent(Items.EMERALD, SORTER, 2.0);
+		List<ItemEntity> dropped = helper.getLevel()
+			.getEntitiesOfClass(ItemEntity.class, new AABB(helper.absolutePos(SORTER)).inflate(2.0));
+		int diamondCount = dropped.stream().filter(e -> e.getItem().is(Items.DIAMOND)).mapToInt(e -> e.getItem().getCount()).sum();
+		int emeraldCount = dropped.stream().filter(e -> e.getItem().is(Items.EMERALD)).mapToInt(e -> e.getItem().getCount()).sum();
+		helper.assertValueEqual(diamondCount, 3, "diamonds dropped");
+		helper.assertValueEqual(emeraldCount, 1, "emeralds dropped");
 		helper.succeed();
 	}
 
@@ -163,15 +172,16 @@ public class SorterHopperGameTest {
 		menu.getSlot(diamondSlot).set(new ItemStack(Items.DIAMOND, 5));
 		menu.getSlot(dirtSlot).set(new ItemStack(Items.DIRT, 3));
 
-		menu.quickMoveStack(player, diamondSlot);
+		menu.clicked(diamondSlot, 0, ContainerInput.QUICK_MOVE, player);
 		helper.assertTrue(sorter.getFilterItem().is(Items.DIAMOND), "first shift-click sets filter");
 		helper.assertValueEqual(sorter.getFilterItem().getCount(), 1, "filter count");
 		helper.assertValueEqual(menu.getSlot(diamondSlot).getItem().getCount(), 4, "diamonds left in inventory");
+		helper.assertValueEqual(sorter.countItem(Items.DIAMOND), 0, "buffer must stay empty on first shift-click");
 
-		menu.quickMoveStack(player, diamondSlot);
+		menu.clicked(diamondSlot, 0, ContainerInput.QUICK_MOVE, player);
 		helper.assertValueEqual(sorter.countItem(Items.DIAMOND), 4, "diamonds in buffer");
 
-		menu.quickMoveStack(player, dirtSlot);
+		menu.clicked(dirtSlot, 0, ContainerInput.QUICK_MOVE, player);
 		helper.assertValueEqual(menu.getSlot(dirtSlot).getItem().getCount(), 3, "dirt stays in inventory");
 		helper.assertValueEqual(sorter.countItem(Items.DIRT), 0, "dirt in buffer");
 		helper.succeed();
@@ -184,5 +194,4 @@ public class SorterHopperGameTest {
 		helper.assertItemEntityPresent(ModBlocks.SORTER_HOPPER.asItem(), SORTER, 2.0);
 		helper.succeed();
 	}
-
 }
