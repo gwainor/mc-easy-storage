@@ -177,4 +177,12 @@ public class SorterHopperGameTest {
 		helper.succeed();
 	}
 
+	@GameTest
+	public void breakingDropsSorterHopperItem(GameTestHelper helper) {
+		helper.setBlock(SORTER, ModBlocks.SORTER_HOPPER);
+		helper.getLevel().destroyBlock(helper.absolutePos(SORTER), true);
+		helper.assertItemEntityPresent(ModBlocks.SORTER_HOPPER.asItem(), SORTER, 2.0);
+		helper.succeed();
+	}
+
 }
