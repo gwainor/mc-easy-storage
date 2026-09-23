@@ -9,6 +9,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -19,6 +21,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -35,6 +39,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 import tr.gokhan.easystorage.block.entity.SorterHopperBlockEntity;
+import tr.gokhan.easystorage.registry.ModBlockEntities;
 
 /**
  * A hopper that only accepts items matching its filter item. Shape, placement,
@@ -95,6 +100,10 @@ public class SorterHopperBlock extends BaseEntityBlock {
 		return new SorterHopperBlockEntity(pos, state);
 	}
 
+	@Override
+	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+		return level.isClientSide() ? null : createTickerHelper(type, ModBlockEntities.SORTER_HOPPER, SorterHopperBlockEntity::pushItemsTick);
+	}
 
 	@Override
 	protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
@@ -154,6 +163,12 @@ public class SorterHopperBlock extends BaseEntityBlock {
 		builder.add(FACING, ENABLED);
 	}
 
+	@Override
+	protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecise) {
+		if (level.getBlockEntity(pos) instanceof SorterHopperBlockEntity sorter) {
+			SorterHopperBlockEntity.entityInside(level, pos, state, entity, sorter);
+		}
+	}
 
 	@Override
 	protected boolean isPathfindable(BlockState state, PathComputationType type) {
