@@ -3,8 +3,9 @@
 Deferred work, newest first.
 
 ## Item Gate
-- Animated chest lid (open when the screen is open). v1 uses a static chest-shaped
-  model; an animated lid needs a block entity renderer and chest-style texture sheet.
+- Final textures (placeholders in v1).
+- Optionally block extraction through the output face.
+- Optional speed config; optional drop sound/particles.
 
 ## Sorter Hopper
 - Final textures and screen art (placeholders in v1).
