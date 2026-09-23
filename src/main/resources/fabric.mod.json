@@ -1,0 +1,28 @@
+{
+	"schemaVersion": 1,
+	"id": "easystorage",
+	"version": "${version}",
+	"name": "Easy Storage",
+	"description": "Single blocks that replace complex redstone contraptions: item sorting, shulker box unloading and more.",
+	"authors": [
+		"Gokhan Ozturk"
+	],
+	"contact": {},
+	"license": "MIT",
+	"icon": "assets/easystorage/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"tr.gokhan.easystorage.EasyStorage"
+		],
+		"client": [
+			"tr.gokhan.easystorage.client.EasyStorageClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
