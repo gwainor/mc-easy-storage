@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    "minecraft:hopper",
+    "minecraft:comparator",
+    "minecraft:observer"
+  ],
+  "result": {
+    "id": "easystorage:sorter_hopper"
+  }
+}

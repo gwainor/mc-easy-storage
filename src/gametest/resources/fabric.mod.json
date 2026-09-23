@@ -1,0 +1,15 @@
+{
+	"schemaVersion": 1,
+	"id": "easystorage-test",
+	"version": "1.0.0",
+	"name": "Easy Storage Tests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": [
+			"tr.gokhan.easystorage.test.SorterHopperGameTest"
+		]
+	},
+	"depends": {
+		"easystorage": "*"
+	}
+}
