@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/hopper_side",
+  "textures": {
+    "particle": "easystorage:block/filter_hopper_outside",
+    "top": "easystorage:block/filter_hopper_top",
+    "side": "easystorage:block/filter_hopper_outside",
+    "inside": "easystorage:block/filter_hopper_inside"
+  }
+}

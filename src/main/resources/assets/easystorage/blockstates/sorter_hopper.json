@@ -1,9 +1,0 @@
-{
-  "variants": {
-    "facing=down": { "model": "easystorage:block/sorter_hopper" },
-    "facing=north": { "model": "easystorage:block/sorter_hopper_side" },
-    "facing=east": { "model": "easystorage:block/sorter_hopper_side", "y": 90 },
-    "facing=south": { "model": "easystorage:block/sorter_hopper_side", "y": 180 },
-    "facing=west": { "model": "easystorage:block/sorter_hopper_side", "y": 270 }
-  }
-}

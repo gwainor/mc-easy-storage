@@ -2,12 +2,14 @@
 
 Deferred work, newest first.
 
-## Item Gate
+## Item Feeder
 - Final textures (placeholders in v1).
 - Optionally block extraction through the output face.
 - Optional speed config; optional drop sound/particles.
 
-## Sorter Hopper
+## Filter Hopper
+- Show the filter item on top of the placed block (block entity renderer + sync the
+  filter item to the client).
 - Final textures and screen art (placeholders in v1).
 - Screen labels "Filter" / "Buffer" (come with final art).
 - Place in creative tab right after the vanilla hopper instead of at the end.

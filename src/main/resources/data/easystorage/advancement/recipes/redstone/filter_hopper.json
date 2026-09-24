@@ -1,25 +1,25 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_dropper": {
+    "has_hopper": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
-          { "items": "minecraft:dropper" }
+          { "items": "minecraft:hopper" }
         ]
       }
     },
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "easystorage:item_gate"
+        "recipe": "easystorage:filter_hopper"
       }
     }
   },
   "requirements": [
-    ["has_the_recipe", "has_dropper"]
+    ["has_the_recipe", "has_hopper"]
   ],
   "rewards": {
-    "recipes": ["easystorage:item_gate"]
+    "recipes": ["easystorage:filter_hopper"]
   }
 }

@@ -21,19 +21,19 @@ import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import tr.gokhan.easystorage.block.SorterHopperBlock;
-import tr.gokhan.easystorage.menu.SorterHopperMenu;
+import tr.gokhan.easystorage.block.FilterHopperBlock;
+import tr.gokhan.easystorage.menu.FilterHopperMenu;
 import tr.gokhan.easystorage.registry.ModBlockEntities;
 
 /**
- * Block entity for the Sorter Hopper. The {@link Container} it exposes is the
+ * Block entity for the Filter Hopper. The {@link Container} it exposes is the
  * 5-slot buffer only; the filter lives in a separate 1-slot container that
  * automation never sees. Transfer timing follows the vanilla hopper.
  */
-public class SorterHopperBlockEntity extends BaseContainerBlockEntity implements Hopper {
+public class FilterHopperBlockEntity extends BaseContainerBlockEntity implements Hopper {
 	public static final int BUFFER_SIZE = 5;
 	private static final int NO_COOLDOWN = -1;
-	private static final Component DEFAULT_NAME = Component.translatable("container.easystorage.sorter_hopper");
+	private static final Component DEFAULT_NAME = Component.translatable("container.easystorage.filter_hopper");
 
 	private NonNullList<ItemStack> items = NonNullList.withSize(BUFFER_SIZE, ItemStack.EMPTY);
 	private final SimpleContainer filter = new SimpleContainer(1) {
@@ -45,13 +45,13 @@ public class SorterHopperBlockEntity extends BaseContainerBlockEntity implements
 		@Override
 		public void setChanged() {
 			super.setChanged();
-			SorterHopperBlockEntity.this.setChanged();
+			FilterHopperBlockEntity.this.setChanged();
 		}
 	};
 	private int cooldownTime = NO_COOLDOWN;
 
-	public SorterHopperBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.SORTER_HOPPER, pos, state);
+	public FilterHopperBlockEntity(BlockPos pos, BlockState state) {
+		super(ModBlockEntities.FILTER_HOPPER, pos, state);
 	}
 
 	public Container getFilter() {
@@ -126,7 +126,7 @@ public class SorterHopperBlockEntity extends BaseContainerBlockEntity implements
 
 	@Override
 	protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-		return new SorterHopperMenu(containerId, inventory, this, this.filter);
+		return new FilterHopperMenu(containerId, inventory, this, this.filter);
 	}
 
 	// --- Hopper ---
@@ -153,24 +153,24 @@ public class SorterHopperBlockEntity extends BaseContainerBlockEntity implements
 
 	// --- Ticking (mirrors HopperBlockEntity) ---
 
-	public static void pushItemsTick(Level level, BlockPos pos, BlockState state, SorterHopperBlockEntity sorter) {
-		sorter.cooldownTime--;
-		if (!sorter.isOnCooldown()) {
-			sorter.cooldownTime = 0;
-			sorter.tryMoveItems(level, pos, state, () -> HopperBlockEntity.suckInItems(level, sorter));
+	public static void pushItemsTick(Level level, BlockPos pos, BlockState state, FilterHopperBlockEntity filterHopper) {
+		filterHopper.cooldownTime--;
+		if (!filterHopper.isOnCooldown()) {
+			filterHopper.cooldownTime = 0;
+			filterHopper.tryMoveItems(level, pos, state, () -> HopperBlockEntity.suckInItems(level, filterHopper));
 		}
 	}
 
-	public static void entityInside(Level level, BlockPos pos, BlockState state, Entity entity, SorterHopperBlockEntity sorter) {
+	public static void entityInside(Level level, BlockPos pos, BlockState state, Entity entity, FilterHopperBlockEntity filterHopper) {
 		if (entity instanceof ItemEntity itemEntity
 			&& !itemEntity.getItem().isEmpty()
-			&& entity.getBoundingBox().move(-pos.getX(), -pos.getY(), -pos.getZ()).intersects(sorter.getSuckAabb())) {
-			sorter.tryMoveItems(level, pos, state, () -> HopperBlockEntity.addItem(sorter, itemEntity));
+			&& entity.getBoundingBox().move(-pos.getX(), -pos.getY(), -pos.getZ()).intersects(filterHopper.getSuckAabb())) {
+			filterHopper.tryMoveItems(level, pos, state, () -> HopperBlockEntity.addItem(filterHopper, itemEntity));
 		}
 	}
 
 	private boolean tryMoveItems(Level level, BlockPos pos, BlockState state, BooleanSupplier pull) {
-		if (level.isClientSide() || this.isOnCooldown() || !state.getValue(SorterHopperBlock.ENABLED)) {
+		if (level.isClientSide() || this.isOnCooldown() || !state.getValue(FilterHopperBlock.ENABLED)) {
 			return false;
 		}
 
@@ -191,7 +191,7 @@ public class SorterHopperBlockEntity extends BaseContainerBlockEntity implements
 	}
 
 	private boolean ejectItems(Level level, BlockPos pos, BlockState state) {
-		Direction facing = state.getValue(SorterHopperBlock.FACING);
+		Direction facing = state.getValue(FilterHopperBlock.FACING);
 		Container target = HopperBlockEntity.getContainerAt(level, pos.relative(facing));
 		if (target == null) {
 			return false;

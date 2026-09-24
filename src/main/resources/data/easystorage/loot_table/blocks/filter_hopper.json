@@ -9,7 +9,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "easystorage:sorter_hopper",
+          "name": "easystorage:filter_hopper",
           "functions": [
             {
               "function": "minecraft:copy_components",
@@ -21,5 +21,5 @@
       ]
     }
   ],
-  "random_sequence": "easystorage:blocks/sorter_hopper"
+  "random_sequence": "easystorage:blocks/filter_hopper"
 }

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "easystorage:item/sorter_hopper"
+    "model": "easystorage:block/item_feeder"
   }
 }

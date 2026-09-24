@@ -16,19 +16,19 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import tr.gokhan.easystorage.EasyStorage;
-import tr.gokhan.easystorage.block.ItemGateBlock;
-import tr.gokhan.easystorage.block.SorterHopperBlock;
+import tr.gokhan.easystorage.block.ItemFeederBlock;
+import tr.gokhan.easystorage.block.FilterHopperBlock;
 
 public final class ModBlocks {
-	public static final Block SORTER_HOPPER = register(
-		"sorter_hopper",
-		SorterHopperBlock::new,
+	public static final Block FILTER_HOPPER = register(
+		"filter_hopper",
+		FilterHopperBlock::new,
 		BlockBehaviour.Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().strength(3.0F, 4.8F).sound(SoundType.METAL).noOcclusion()
 	);
 
-	public static final Block ITEM_GATE = register(
-		"item_gate",
-		ItemGateBlock::new,
+	public static final Block ITEM_FEEDER = register(
+		"item_feeder",
+		ItemFeederBlock::new,
 		BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).instrument(NoteBlockInstrument.BASS).strength(2.5F).sound(SoundType.WOOD).ignitedByLava()
 	);
 
@@ -45,8 +45,8 @@ public final class ModBlocks {
 
 	public static void initialize() {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.REDSTONE_BLOCKS).register(output -> {
-			output.accept(SORTER_HOPPER);
-			output.accept(ITEM_GATE);
+			output.accept(FILTER_HOPPER);
+			output.accept(ITEM_FEEDER);
 		});
 	}
 }

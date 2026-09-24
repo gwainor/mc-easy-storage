@@ -19,7 +19,7 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@25   # if Java 25 is not your default
 
 ## Blocks
 
-### Sorter Hopper
+### Filter Hopper
 
 A hopper that only accepts items matching its filter. Drop-in replacement for the
 filter hopper in an SS3 item sorter, without comparators or dummy items.
@@ -30,7 +30,7 @@ filter hopper in an SS3 item sorter, without comparators or dummy items.
 - A redstone signal locks it. Comparators read only the 5 buffer slots.
 - Recipe (shapeless): hopper + comparator + observer.
 
-### Item Gate
+### Item Feeder
 
 A barrel-like block that feeds a water-stream sorter. While it holds items it
 drops one stack every 8 ticks out of its output face (the orange-ringed side),

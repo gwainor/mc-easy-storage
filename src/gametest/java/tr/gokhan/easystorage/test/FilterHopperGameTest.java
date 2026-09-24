@@ -18,26 +18,26 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.phys.AABB;
-import tr.gokhan.easystorage.block.SorterHopperBlock;
-import tr.gokhan.easystorage.block.entity.SorterHopperBlockEntity;
-import tr.gokhan.easystorage.menu.SorterHopperMenu;
+import tr.gokhan.easystorage.block.FilterHopperBlock;
+import tr.gokhan.easystorage.block.entity.FilterHopperBlockEntity;
+import tr.gokhan.easystorage.menu.FilterHopperMenu;
 import tr.gokhan.easystorage.registry.ModBlocks;
 
 import java.util.List;
 
-public class SorterHopperGameTest {
+public class FilterHopperGameTest {
 	private static final BlockPos TOP = new BlockPos(1, 3, 1);
-	private static final BlockPos SORTER = new BlockPos(1, 2, 1);
+	private static final BlockPos HOPPER = new BlockPos(1, 2, 1);
 	private static final BlockPos BOTTOM = new BlockPos(1, 1, 1);
 
-	/** Chest above, sorter (facing down) in the middle, chest below. */
-	private static SorterHopperBlockEntity column(GameTestHelper helper, ItemStack filter) {
+	/** Chest above, filter hopper (facing down) in the middle, chest below. */
+	private static FilterHopperBlockEntity column(GameTestHelper helper, ItemStack filter) {
 		helper.setBlock(TOP, Blocks.CHEST);
-		helper.setBlock(SORTER, ModBlocks.SORTER_HOPPER);
+		helper.setBlock(HOPPER, ModBlocks.FILTER_HOPPER);
 		helper.setBlock(BOTTOM, Blocks.CHEST);
-		SorterHopperBlockEntity sorter = helper.getBlockEntity(SORTER, SorterHopperBlockEntity.class);
-		sorter.setFilterItem(filter);
-		return sorter;
+		FilterHopperBlockEntity filterHopper = helper.getBlockEntity(HOPPER, FilterHopperBlockEntity.class);
+		filterHopper.setFilterItem(filter);
+		return filterHopper;
 	}
 
 	private static Container container(GameTestHelper helper, BlockPos pos) {
@@ -54,7 +54,7 @@ public class SorterHopperGameTest {
 	@GameTest(maxTicks = 60)
 	public void nonMatchingItemContinuesAlongLine(GameTestHelper helper) {
 		// source chest -> line hopper (east) -> next hopper (down) -> overflow chest
-		//                 sorter below line hopper -> sorted chest
+		//                 filter hopper below line hopper -> sorted chest
 		BlockPos source = new BlockPos(1, 4, 1);
 		BlockPos lineHopper = new BlockPos(1, 3, 1);
 		BlockPos nextHopper = new BlockPos(2, 3, 1);
@@ -63,9 +63,9 @@ public class SorterHopperGameTest {
 		helper.setBlock(lineHopper, Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.EAST));
 		helper.setBlock(nextHopper, Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.DOWN));
 		helper.setBlock(overflow, Blocks.CHEST);
-		helper.setBlock(SORTER, ModBlocks.SORTER_HOPPER);
+		helper.setBlock(HOPPER, ModBlocks.FILTER_HOPPER);
 		helper.setBlock(BOTTOM, Blocks.CHEST);
-		helper.getBlockEntity(SORTER, SorterHopperBlockEntity.class).setFilterItem(new ItemStack(Items.DIAMOND));
+		helper.getBlockEntity(HOPPER, FilterHopperBlockEntity.class).setFilterItem(new ItemStack(Items.DIAMOND));
 
 		container(helper, source).setItem(0, new ItemStack(Items.DIAMOND));
 		container(helper, source).setItem(1, new ItemStack(Items.DIRT));
@@ -83,7 +83,7 @@ public class SorterHopperGameTest {
 		column(helper, ItemStack.EMPTY);
 		container(helper, TOP).setItem(0, new ItemStack(Items.DIAMOND));
 		helper.runAfterDelay(20, () -> {
-			helper.assertContainerEmpty(SORTER);
+			helper.assertContainerEmpty(HOPPER);
 			helper.assertContainerEmpty(BOTTOM);
 			helper.assertContainerContains(TOP, Items.DIAMOND);
 			helper.succeed();
@@ -96,8 +96,8 @@ public class SorterHopperGameTest {
 		helper.setBlock(new BlockPos(2, 2, 1), Blocks.REDSTONE_BLOCK);
 		container(helper, TOP).setItem(0, new ItemStack(Items.DIAMOND));
 		helper.runAfterDelay(20, () -> {
-			helper.assertBlockProperty(SORTER, SorterHopperBlock.ENABLED, false);
-			helper.assertContainerEmpty(SORTER);
+			helper.assertBlockProperty(HOPPER, FilterHopperBlock.ENABLED, false);
+			helper.assertContainerEmpty(HOPPER);
 			helper.assertContainerEmpty(BOTTOM);
 			helper.assertContainerContains(TOP, Items.DIAMOND);
 			helper.succeed();
@@ -106,13 +106,13 @@ public class SorterHopperGameTest {
 
 	@GameTest
 	public void comparatorIgnoresFilterSlot(GameTestHelper helper) {
-		helper.setBlock(SORTER, ModBlocks.SORTER_HOPPER);
-		SorterHopperBlockEntity sorter = helper.getBlockEntity(SORTER, SorterHopperBlockEntity.class);
-		sorter.setFilterItem(new ItemStack(Items.DIAMOND));
-		helper.assertValueEqual(AbstractContainerMenu.getRedstoneSignalFromBlockEntity(sorter), 0, "signal with filter only");
+		helper.setBlock(HOPPER, ModBlocks.FILTER_HOPPER);
+		FilterHopperBlockEntity filterHopper = helper.getBlockEntity(HOPPER, FilterHopperBlockEntity.class);
+		filterHopper.setFilterItem(new ItemStack(Items.DIAMOND));
+		helper.assertValueEqual(AbstractContainerMenu.getRedstoneSignalFromBlockEntity(filterHopper), 0, "signal with filter only");
 
-		sorter.setItem(0, new ItemStack(Items.DIAMOND));
-		helper.assertTrue(AbstractContainerMenu.getRedstoneSignalFromBlockEntity(sorter) > 0, "signal with buffered item");
+		filterHopper.setItem(0, new ItemStack(Items.DIAMOND));
+		helper.assertTrue(AbstractContainerMenu.getRedstoneSignalFromBlockEntity(filterHopper) > 0, "signal with buffered item");
 		helper.succeed();
 	}
 
@@ -128,15 +128,15 @@ public class SorterHopperGameTest {
 
 	@GameTest
 	public void breakingDropsBufferAndFilter(GameTestHelper helper) {
-		helper.setBlock(SORTER, ModBlocks.SORTER_HOPPER);
-		SorterHopperBlockEntity sorter = helper.getBlockEntity(SORTER, SorterHopperBlockEntity.class);
-		sorter.setFilterItem(new ItemStack(Items.EMERALD));
-		sorter.setItem(0, new ItemStack(Items.DIAMOND, 3));
+		helper.setBlock(HOPPER, ModBlocks.FILTER_HOPPER);
+		FilterHopperBlockEntity filterHopper = helper.getBlockEntity(HOPPER, FilterHopperBlockEntity.class);
+		filterHopper.setFilterItem(new ItemStack(Items.EMERALD));
+		filterHopper.setItem(0, new ItemStack(Items.DIAMOND, 3));
 
-		helper.getLevel().destroyBlock(helper.absolutePos(SORTER), true);
+		helper.getLevel().destroyBlock(helper.absolutePos(HOPPER), true);
 
 		List<ItemEntity> dropped = helper.getLevel()
-			.getEntitiesOfClass(ItemEntity.class, new AABB(helper.absolutePos(SORTER)).inflate(2.0));
+			.getEntitiesOfClass(ItemEntity.class, new AABB(helper.absolutePos(HOPPER)).inflate(2.0));
 		int diamondCount = dropped.stream().filter(e -> e.getItem().is(Items.DIAMOND)).mapToInt(e -> e.getItem().getCount()).sum();
 		int emeraldCount = dropped.stream().filter(e -> e.getItem().is(Items.EMERALD)).mapToInt(e -> e.getItem().getCount()).sum();
 		helper.assertValueEqual(diamondCount, 3, "diamonds dropped");
@@ -147,14 +147,14 @@ public class SorterHopperGameTest {
 	@GameTest(maxTicks = 30)
 	public void hopperCannotFillFilterOrPushNonMatching(GameTestHelper helper) {
 		helper.setBlock(TOP, Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.DOWN));
-		helper.setBlock(SORTER, ModBlocks.SORTER_HOPPER);
-		SorterHopperBlockEntity sorter = helper.getBlockEntity(SORTER, SorterHopperBlockEntity.class);
-		sorter.setFilterItem(new ItemStack(Items.DIAMOND));
+		helper.setBlock(HOPPER, ModBlocks.FILTER_HOPPER);
+		FilterHopperBlockEntity filterHopper = helper.getBlockEntity(HOPPER, FilterHopperBlockEntity.class);
+		filterHopper.setFilterItem(new ItemStack(Items.DIAMOND));
 		container(helper, TOP).setItem(0, new ItemStack(Items.DIRT));
 
 		helper.runAfterDelay(20, () -> {
-			helper.assertContainerEmpty(SORTER);
-			helper.assertTrue(sorter.getFilterItem().is(Items.DIAMOND), "filter must be unchanged");
+			helper.assertContainerEmpty(HOPPER);
+			helper.assertTrue(filterHopper.getFilterItem().is(Items.DIAMOND), "filter must be unchanged");
 			helper.assertContainerContains(TOP, Items.DIRT);
 			helper.succeed();
 		});
@@ -162,36 +162,36 @@ public class SorterHopperGameTest {
 
 	@GameTest
 	public void shiftClickFillsFilterThenBuffer(GameTestHelper helper) {
-		helper.setBlock(SORTER, ModBlocks.SORTER_HOPPER);
-		SorterHopperBlockEntity sorter = helper.getBlockEntity(SORTER, SorterHopperBlockEntity.class);
+		helper.setBlock(HOPPER, ModBlocks.FILTER_HOPPER);
+		FilterHopperBlockEntity filterHopper = helper.getBlockEntity(HOPPER, FilterHopperBlockEntity.class);
 		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-		SorterHopperMenu menu = new SorterHopperMenu(0, player.getInventory(), sorter, sorter.getFilter());
+		FilterHopperMenu menu = new FilterHopperMenu(0, player.getInventory(), filterHopper, filterHopper.getFilter());
 		// Menu slots: 0 = filter, 1-5 = buffer, 6-32 = main inventory, 33-41 = hotbar.
-		int diamondSlot = SorterHopperMenu.BUFFER_END;
-		int dirtSlot = SorterHopperMenu.BUFFER_END + 1;
+		int diamondSlot = FilterHopperMenu.BUFFER_END;
+		int dirtSlot = FilterHopperMenu.BUFFER_END + 1;
 		menu.getSlot(diamondSlot).set(new ItemStack(Items.DIAMOND, 5));
 		menu.getSlot(dirtSlot).set(new ItemStack(Items.DIRT, 3));
 
 		menu.clicked(diamondSlot, 0, ContainerInput.QUICK_MOVE, player);
-		helper.assertTrue(sorter.getFilterItem().is(Items.DIAMOND), "first shift-click sets filter");
-		helper.assertValueEqual(sorter.getFilterItem().getCount(), 1, "filter count");
+		helper.assertTrue(filterHopper.getFilterItem().is(Items.DIAMOND), "first shift-click sets filter");
+		helper.assertValueEqual(filterHopper.getFilterItem().getCount(), 1, "filter count");
 		helper.assertValueEqual(menu.getSlot(diamondSlot).getItem().getCount(), 4, "diamonds left in inventory");
-		helper.assertValueEqual(sorter.countItem(Items.DIAMOND), 0, "buffer must stay empty on first shift-click");
+		helper.assertValueEqual(filterHopper.countItem(Items.DIAMOND), 0, "buffer must stay empty on first shift-click");
 
 		menu.clicked(diamondSlot, 0, ContainerInput.QUICK_MOVE, player);
-		helper.assertValueEqual(sorter.countItem(Items.DIAMOND), 4, "diamonds in buffer");
+		helper.assertValueEqual(filterHopper.countItem(Items.DIAMOND), 4, "diamonds in buffer");
 
 		menu.clicked(dirtSlot, 0, ContainerInput.QUICK_MOVE, player);
 		helper.assertValueEqual(menu.getSlot(dirtSlot).getItem().getCount(), 3, "dirt stays in inventory");
-		helper.assertValueEqual(sorter.countItem(Items.DIRT), 0, "dirt in buffer");
+		helper.assertValueEqual(filterHopper.countItem(Items.DIRT), 0, "dirt in buffer");
 		helper.succeed();
 	}
 
 	@GameTest
-	public void breakingDropsSorterHopperItem(GameTestHelper helper) {
-		helper.setBlock(SORTER, ModBlocks.SORTER_HOPPER);
-		helper.getLevel().destroyBlock(helper.absolutePos(SORTER), true);
-		helper.assertItemEntityPresent(ModBlocks.SORTER_HOPPER.asItem(), SORTER, 2.0);
+	public void breakingDropsFilterHopperItem(GameTestHelper helper) {
+		helper.setBlock(HOPPER, ModBlocks.FILTER_HOPPER);
+		helper.getLevel().destroyBlock(helper.absolutePos(HOPPER), true);
+		helper.assertItemEntityPresent(ModBlocks.FILTER_HOPPER.asItem(), HOPPER, 2.0);
 		helper.succeed();
 	}
 }
