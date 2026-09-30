@@ -5,6 +5,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import tr.gokhan.easystorage.EasyStorage;
+import tr.gokhan.easystorage.block.entity.ItemGateBlockEntity;
 import tr.gokhan.easystorage.block.entity.SorterHopperBlockEntity;
 
 public final class ModBlockEntities {
@@ -12,6 +13,12 @@ public final class ModBlockEntities {
 		BuiltInRegistries.BLOCK_ENTITY_TYPE,
 		EasyStorage.id("sorter_hopper"),
 		FabricBlockEntityTypeBuilder.create(SorterHopperBlockEntity::new, ModBlocks.SORTER_HOPPER).build()
+	);
+
+	public static final BlockEntityType<ItemGateBlockEntity> ITEM_GATE = Registry.register(
+		BuiltInRegistries.BLOCK_ENTITY_TYPE,
+		EasyStorage.id("item_gate"),
+		FabricBlockEntityTypeBuilder.create(ItemGateBlockEntity::new, ModBlocks.ITEM_GATE).build()
 	);
 
 	private ModBlockEntities() {

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "conditions": [
+        { "condition": "minecraft:survives_explosion" }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "easystorage:item_gate",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "source": "block_entity",
+              "include": ["minecraft:custom_name"]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "random_sequence": "easystorage:blocks/item_gate"
+}
