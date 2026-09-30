@@ -6,8 +6,8 @@
 	"environment": "*",
 	"entrypoints": {
 		"fabric-gametest": [
-			"tr.gokhan.easystorage.test.SorterHopperGameTest",
-			"tr.gokhan.easystorage.test.ItemGateGameTest"
+			"tr.gokhan.easystorage.test.FilterHopperGameTest",
+			"tr.gokhan.easystorage.test.ItemFeederGameTest"
 		]
 	},
 	"depends": {

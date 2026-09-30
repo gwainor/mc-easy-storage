@@ -21,30 +21,30 @@ import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import tr.gokhan.easystorage.block.ItemGateBlock;
+import tr.gokhan.easystorage.block.ItemFeederBlock;
 import tr.gokhan.easystorage.registry.ModBlockEntities;
 
 /**
- * Block entity for the Item Gate: 27 slots, drops one stack every 8 ticks out of
+ * Block entity for the Item Feeder: 27 slots, drops one stack every 8 ticks out of
  * its output face. Shulker boxes are unloaded stack by stack, then dropped empty.
  */
-public class ItemGateBlockEntity extends RandomizableContainerBlockEntity {
+public class ItemFeederBlockEntity extends RandomizableContainerBlockEntity {
 	public static final int CONTAINER_SIZE = 27;
 	/** Distance from the block centre to the dropped item's centre along FACING. */
 	private static final double DROP_OFFSET = 0.8;
-	private static final Component DEFAULT_NAME = Component.translatable("container.easystorage.item_gate");
+	private static final Component DEFAULT_NAME = Component.translatable("container.easystorage.item_feeder");
 
 	private NonNullList<ItemStack> items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
 	private int cooldownTime;
 	private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
 		@Override
 		protected void onOpen(Level level, BlockPos pos, BlockState state) {
-			ItemGateBlockEntity.this.setOpen(state, true);
+			ItemFeederBlockEntity.this.setOpen(state, true);
 		}
 
 		@Override
 		protected void onClose(Level level, BlockPos pos, BlockState state) {
-			ItemGateBlockEntity.this.setOpen(state, false);
+			ItemFeederBlockEntity.this.setOpen(state, false);
 		}
 
 		@Override
@@ -53,12 +53,12 @@ public class ItemGateBlockEntity extends RandomizableContainerBlockEntity {
 
 		@Override
 		public boolean isOwnContainer(Player player) {
-			return player.containerMenu instanceof ChestMenu menu && menu.getContainer() == ItemGateBlockEntity.this;
+			return player.containerMenu instanceof ChestMenu menu && menu.getContainer() == ItemFeederBlockEntity.this;
 		}
 	};
 
-	public ItemGateBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.ITEM_GATE, pos, state);
+	public ItemFeederBlockEntity(BlockPos pos, BlockState state) {
+		super(ModBlockEntities.ITEM_FEEDER, pos, state);
 	}
 
 	@Override
@@ -133,22 +133,22 @@ public class ItemGateBlockEntity extends RandomizableContainerBlockEntity {
 	}
 
 	private void setOpen(BlockState state, boolean open) {
-		this.level.setBlock(this.getBlockPos(), state.setValue(ItemGateBlock.OPEN, open), Block.UPDATE_ALL);
+		this.level.setBlock(this.getBlockPos(), state.setValue(ItemFeederBlock.OPEN, open), Block.UPDATE_ALL);
 	}
 
 	// --- Dropping ---
 
-	public static void dropTick(Level level, BlockPos pos, BlockState state, ItemGateBlockEntity gate) {
-		if (gate.cooldownTime > 0) {
-			gate.cooldownTime--;
+	public static void dropTick(Level level, BlockPos pos, BlockState state, ItemFeederBlockEntity feeder) {
+		if (feeder.cooldownTime > 0) {
+			feeder.cooldownTime--;
 			return;
 		}
-		if (!state.getValue(ItemGateBlock.ENABLED) || gate.isEmpty()) {
+		if (!state.getValue(ItemFeederBlock.ENABLED) || feeder.isEmpty()) {
 			return;
 		}
-		if (gate.dropNext(level, pos, state.getValue(ItemGateBlock.FACING))) {
-			gate.cooldownTime = HopperBlockEntity.MOVE_ITEM_SPEED - 1;
-			gate.setChanged();
+		if (feeder.dropNext(level, pos, state.getValue(ItemFeederBlock.FACING))) {
+			feeder.cooldownTime = HopperBlockEntity.MOVE_ITEM_SPEED - 1;
+			feeder.setChanged();
 		}
 	}
 

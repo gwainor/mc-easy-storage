@@ -5,20 +5,20 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import tr.gokhan.easystorage.EasyStorage;
-import tr.gokhan.easystorage.block.entity.ItemGateBlockEntity;
-import tr.gokhan.easystorage.block.entity.SorterHopperBlockEntity;
+import tr.gokhan.easystorage.block.entity.ItemFeederBlockEntity;
+import tr.gokhan.easystorage.block.entity.FilterHopperBlockEntity;
 
 public final class ModBlockEntities {
-	public static final BlockEntityType<SorterHopperBlockEntity> SORTER_HOPPER = Registry.register(
+	public static final BlockEntityType<FilterHopperBlockEntity> FILTER_HOPPER = Registry.register(
 		BuiltInRegistries.BLOCK_ENTITY_TYPE,
-		EasyStorage.id("sorter_hopper"),
-		FabricBlockEntityTypeBuilder.create(SorterHopperBlockEntity::new, ModBlocks.SORTER_HOPPER).build()
+		EasyStorage.id("filter_hopper"),
+		FabricBlockEntityTypeBuilder.create(FilterHopperBlockEntity::new, ModBlocks.FILTER_HOPPER).build()
 	);
 
-	public static final BlockEntityType<ItemGateBlockEntity> ITEM_GATE = Registry.register(
+	public static final BlockEntityType<ItemFeederBlockEntity> ITEM_FEEDER = Registry.register(
 		BuiltInRegistries.BLOCK_ENTITY_TYPE,
-		EasyStorage.id("item_gate"),
-		FabricBlockEntityTypeBuilder.create(ItemGateBlockEntity::new, ModBlocks.ITEM_GATE).build()
+		EasyStorage.id("item_feeder"),
+		FabricBlockEntityTypeBuilder.create(ItemFeederBlockEntity::new, ModBlocks.ITEM_FEEDER).build()
 	);
 
 	private ModBlockEntities() {

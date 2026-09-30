@@ -7,13 +7,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import tr.gokhan.easystorage.block.entity.SorterHopperBlockEntity;
+import tr.gokhan.easystorage.block.entity.FilterHopperBlockEntity;
 import tr.gokhan.easystorage.registry.ModMenus;
 
-public class SorterHopperMenu extends AbstractContainerMenu {
+public class FilterHopperMenu extends AbstractContainerMenu {
 	public static final int FILTER_SLOT = 0;
 	public static final int BUFFER_START = 1;
-	public static final int BUFFER_END = BUFFER_START + SorterHopperBlockEntity.BUFFER_SIZE;
+	public static final int BUFFER_END = BUFFER_START + FilterHopperBlockEntity.BUFFER_SIZE;
 	public static final int FILTER_X = 17;
 	public static final int BUFFER_X = 62;
 	public static final int SLOT_Y = 20;
@@ -22,20 +22,20 @@ public class SorterHopperMenu extends AbstractContainerMenu {
 	private final Container filter;
 
 	/** Client-side constructor. */
-	public SorterHopperMenu(int containerId, Inventory inventory) {
-		this(containerId, inventory, new SimpleContainer(SorterHopperBlockEntity.BUFFER_SIZE), new SimpleContainer(1));
+	public FilterHopperMenu(int containerId, Inventory inventory) {
+		this(containerId, inventory, new SimpleContainer(FilterHopperBlockEntity.BUFFER_SIZE), new SimpleContainer(1));
 	}
 
-	public SorterHopperMenu(int containerId, Inventory inventory, Container buffer, Container filter) {
-		super(ModMenus.SORTER_HOPPER, containerId);
-		checkContainerSize(buffer, SorterHopperBlockEntity.BUFFER_SIZE);
+	public FilterHopperMenu(int containerId, Inventory inventory, Container buffer, Container filter) {
+		super(ModMenus.FILTER_HOPPER, containerId);
+		checkContainerSize(buffer, FilterHopperBlockEntity.BUFFER_SIZE);
 		checkContainerSize(filter, 1);
 		this.buffer = buffer;
 		this.filter = filter;
 		buffer.startOpen(inventory.player);
 
 		this.addSlot(new FilterSlot(filter, 0, FILTER_X, SLOT_Y));
-		for (int i = 0; i < SorterHopperBlockEntity.BUFFER_SIZE; i++) {
+		for (int i = 0; i < FilterHopperBlockEntity.BUFFER_SIZE; i++) {
 			this.addSlot(new BufferSlot(buffer, i, BUFFER_X + i * 18, SLOT_Y));
 		}
 		this.addStandardInventorySlots(inventory, 8, 51);
@@ -76,7 +76,7 @@ public class SorterHopperMenu extends AbstractContainerMenu {
 				slot.setChanged();
 			}
 			return ItemStack.EMPTY;
-		} else if (SorterHopperBlockEntity.matchesFilter(this.filterItem(), stack)) {
+		} else if (FilterHopperBlockEntity.matchesFilter(this.filterItem(), stack)) {
 			if (!this.moveItemStackTo(stack, BUFFER_START, BUFFER_END, false)) {
 				return ItemStack.EMPTY;
 			}
@@ -124,7 +124,7 @@ public class SorterHopperMenu extends AbstractContainerMenu {
 
 		@Override
 		public boolean mayPlace(ItemStack stack) {
-			return SorterHopperBlockEntity.matchesFilter(SorterHopperMenu.this.filterItem(), stack);
+			return FilterHopperBlockEntity.matchesFilter(FilterHopperMenu.this.filterItem(), stack);
 		}
 	}
 }

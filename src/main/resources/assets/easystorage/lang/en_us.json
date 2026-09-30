@@ -1,6 +1,6 @@
 {
-  "block.easystorage.sorter_hopper": "Sorter Hopper",
-  "container.easystorage.sorter_hopper": "Sorter Hopper",
-  "block.easystorage.item_gate": "Item Gate",
-  "container.easystorage.item_gate": "Item Gate"
+  "block.easystorage.filter_hopper": "Filter Hopper",
+  "container.easystorage.filter_hopper": "Filter Hopper",
+  "block.easystorage.item_feeder": "Item Feeder",
+  "container.easystorage.item_feeder": "Item Feeder"
 }

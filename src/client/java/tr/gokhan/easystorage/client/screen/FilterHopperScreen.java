@@ -5,12 +5,12 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
-import tr.gokhan.easystorage.menu.SorterHopperMenu;
+import tr.gokhan.easystorage.menu.FilterHopperMenu;
 
 /**
  * Placeholder screen drawn with flat fills; final art will replace it with a texture.
  */
-public class SorterHopperScreen extends AbstractContainerScreen<SorterHopperMenu> {
+public class FilterHopperScreen extends AbstractContainerScreen<FilterHopperMenu> {
 	private static final int WIDTH = 176;
 	private static final int HEIGHT = 133;
 	private static final int PANEL = 0xFFC6C6C6;
@@ -21,7 +21,7 @@ public class SorterHopperScreen extends AbstractContainerScreen<SorterHopperMenu
 	private static final int FILTER_TINT = 0xFF3A6EA5;
 	private static final int ARROW = 0xFF555555;
 
-	public SorterHopperScreen(SorterHopperMenu menu, Inventory inventory, Component title) {
+	public FilterHopperScreen(FilterHopperMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title, WIDTH, HEIGHT);
 		this.inventoryLabelY = this.imageHeight - 94;
 	}
@@ -37,8 +37,8 @@ public class SorterHopperScreen extends AbstractContainerScreen<SorterHopperMenu
 		graphics.fill(x + 1, y + 1, x + this.imageWidth - 1, y + this.imageHeight - 1, PANEL);
 
 		// Tinted frame marks the filter slot.
-		int fx = x + SorterHopperMenu.FILTER_X;
-		int fy = y + SorterHopperMenu.SLOT_Y;
+		int fx = x + FilterHopperMenu.FILTER_X;
+		int fy = y + FilterHopperMenu.SLOT_Y;
 		graphics.fill(fx - 3, fy - 3, fx + 19, fy + 19, FILTER_TINT);
 
 		// Arrow from filter to buffer.

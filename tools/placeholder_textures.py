@@ -17,7 +17,7 @@ BASE = (0x3A, 0x6E, 0xA5)
 LIGHT = (0x6F, 0x9C, 0xCC)
 DARK = (0x22, 0x3F, 0x60)
 
-# Item Gate: dark teal barrel wood; orange marks the output face (mod-wide convention).
+# Item Feeder: dark teal barrel wood; orange marks the output face (mod-wide convention).
 TEAL = (0x2B, 0x6B, 0x66)
 TEAL_LIGHT = (0x4F, 0x94, 0x8C)
 TEAL_DARK = (0x17, 0x40, 0x3D)
@@ -106,13 +106,13 @@ def face(seed, center):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    png(OUT / "sorter_hopper_outside.png", texture(1, BASE, LIGHT, DARK))
-    png(OUT / "sorter_hopper_top.png", texture(2, LIGHT, shade(LIGHT, 30), BASE))
-    png(OUT / "sorter_hopper_inside.png", texture(3, DARK, BASE, shade(DARK, -20)))
-    png(OUT / "item_gate_side.png", staves(4))
-    png(OUT / "item_gate_front.png", face(5, HOLE))
-    png(OUT / "item_gate_front_open.png", face(5, HOLE_OPEN))
-    png(OUT / "item_gate_back.png", face(6, None))
+    png(OUT / "filter_hopper_outside.png", texture(1, BASE, LIGHT, DARK))
+    png(OUT / "filter_hopper_top.png", texture(2, LIGHT, shade(LIGHT, 30), BASE))
+    png(OUT / "filter_hopper_inside.png", texture(3, DARK, BASE, shade(DARK, -20)))
+    png(OUT / "item_feeder_side.png", staves(4))
+    png(OUT / "item_feeder_front.png", face(5, HOLE))
+    png(OUT / "item_feeder_front_open.png", face(5, HOLE_OPEN))
+    png(OUT / "item_feeder_back.png", face(6, None))
     print(f"wrote placeholders to {OUT}")
 
 

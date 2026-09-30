@@ -20,24 +20,24 @@ import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.phys.AABB;
-import tr.gokhan.easystorage.block.ItemGateBlock;
-import tr.gokhan.easystorage.block.entity.ItemGateBlockEntity;
+import tr.gokhan.easystorage.block.ItemFeederBlock;
+import tr.gokhan.easystorage.block.entity.ItemFeederBlockEntity;
 import tr.gokhan.easystorage.block.entity.ShulkerUnloader;
-import tr.gokhan.easystorage.block.entity.SorterHopperBlockEntity;
+import tr.gokhan.easystorage.block.entity.FilterHopperBlockEntity;
 import tr.gokhan.easystorage.registry.ModBlocks;
 
-public class ItemGateGameTest {
-	private static final BlockPos GATE = new BlockPos(1, 4, 1);
-	private static final BlockPos BELOW = GATE.below();
+public class ItemFeederGameTest {
+	private static final BlockPos FEEDER = new BlockPos(1, 4, 1);
+	private static final BlockPos BELOW = FEEDER.below();
 
-	/** Places a gate whose output face points down and returns its block entity. */
-	private static ItemGateBlockEntity gate(GameTestHelper helper) {
-		helper.setBlock(GATE, ModBlocks.ITEM_GATE.defaultBlockState().setValue(ItemGateBlock.FACING, Direction.DOWN));
-		return helper.getBlockEntity(GATE, ItemGateBlockEntity.class);
+	/** Places a feeder whose output face points down and returns its block entity. */
+	private static ItemFeederBlockEntity feeder(GameTestHelper helper) {
+		helper.setBlock(FEEDER, ModBlocks.ITEM_FEEDER.defaultBlockState().setValue(ItemFeederBlock.FACING, Direction.DOWN));
+		return helper.getBlockEntity(FEEDER, ItemFeederBlockEntity.class);
 	}
 
 	private static List<ItemEntity> droppedItems(GameTestHelper helper) {
-		AABB area = new AABB(helper.absolutePos(GATE)).inflate(4.0);
+		AABB area = new AABB(helper.absolutePos(FEEDER)).inflate(4.0);
 		return helper.getLevel().getEntitiesOfClass(ItemEntity.class, area);
 	}
 
@@ -53,26 +53,26 @@ public class ItemGateGameTest {
 
 	@GameTest(maxTicks = 20)
 	public void dropsWholeStackOutOfOutputFace(GameTestHelper helper) {
-		ItemGateBlockEntity gate = gate(helper);
-		gate.setItem(0, new ItemStack(Items.COBBLESTONE, 64));
+		ItemFeederBlockEntity feeder = feeder(helper);
+		feeder.setItem(0, new ItemStack(Items.COBBLESTONE, 64));
 		helper.succeedWhen(() -> {
 			List<ItemEntity> dropped = droppedItems(helper);
 			helper.assertValueEqual(dropped.size(), 1, "dropped entities");
 			helper.assertValueEqual(dropped.get(0).getItem().getCount(), 64, "dropped stack size");
-			helper.assertTrue(dropped.get(0).getY() < helper.absolutePos(GATE).getY(), "item must leave through the bottom face");
-			helper.assertTrue(gate.isEmpty(), "gate should be empty");
+			helper.assertTrue(dropped.get(0).getY() < helper.absolutePos(FEEDER).getY(), "item must leave through the bottom face");
+			helper.assertTrue(feeder.isEmpty(), "feeder should be empty");
 		});
 	}
 
 	@GameTest(maxTicks = 60)
 	public void shulkerUnloadsThenDropsEmptyBox(GameTestHelper helper) {
-		ItemGateBlockEntity gate = gate(helper);
+		ItemFeederBlockEntity feeder = feeder(helper);
 		ItemStack shulker = shulkerWith(new ItemStack(Items.DIAMOND, 5), ItemStack.EMPTY, new ItemStack(Items.DIRT, 3), new ItemStack(Items.IRON_INGOT, 2));
 		shulker.set(DataComponents.CUSTOM_NAME, Component.literal("Loot"));
-		gate.setItem(0, shulker);
+		feeder.setItem(0, shulker);
 
 		helper.succeedWhen(() -> {
-			helper.assertTrue(gate.isEmpty(), "gate should be empty");
+			helper.assertTrue(feeder.isEmpty(), "feeder should be empty");
 			helper.assertValueEqual(droppedCount(helper, Items.DIAMOND), 5, "diamonds dropped");
 			helper.assertValueEqual(droppedCount(helper, Items.DIRT), 3, "dirt dropped");
 			helper.assertValueEqual(droppedCount(helper, Items.IRON_INGOT), 2, "iron dropped");
@@ -85,10 +85,10 @@ public class ItemGateGameTest {
 
 	@GameTest(maxTicks = 60)
 	public void dropsAreEightTicksApart(GameTestHelper helper) {
-		ItemGateBlockEntity gate = gate(helper);
-		gate.setItem(0, new ItemStack(Items.DIRT));
-		gate.setItem(1, new ItemStack(Items.SAND));
-		gate.setItem(2, new ItemStack(Items.GRAVEL));
+		ItemFeederBlockEntity feeder = feeder(helper);
+		feeder.setItem(0, new ItemStack(Items.DIRT));
+		feeder.setItem(1, new ItemStack(Items.SAND));
+		feeder.setItem(2, new ItemStack(Items.GRAVEL));
 		List<Long> dropTicks = new ArrayList<>();
 		int[] lastCount = {0};
 		helper.onEachTick(() -> {
@@ -107,23 +107,23 @@ public class ItemGateGameTest {
 
 	@GameTest(maxTicks = 30)
 	public void blockedOutputFaceDropsNothing(GameTestHelper helper) {
-		ItemGateBlockEntity gate = gate(helper);
+		ItemFeederBlockEntity feeder = feeder(helper);
 		helper.setBlock(BELOW, Blocks.STONE);
-		gate.setItem(0, new ItemStack(Items.DIRT, 10));
+		feeder.setItem(0, new ItemStack(Items.DIRT, 10));
 		helper.runAfterDelay(20, () -> {
 			helper.assertValueEqual(droppedItems(helper).size(), 0, "dropped entities");
-			helper.assertValueEqual(gate.countItem(Items.DIRT), 10, "dirt still in gate");
+			helper.assertValueEqual(feeder.countItem(Items.DIRT), 10, "dirt still in feeder");
 			helper.succeed();
 		});
 	}
 
 	@GameTest(maxTicks = 30)
-	public void redstoneSignalLocksGate(GameTestHelper helper) {
-		ItemGateBlockEntity gate = gate(helper);
-		helper.setBlock(GATE.east(), Blocks.REDSTONE_BLOCK);
-		gate.setItem(0, new ItemStack(Items.DIRT, 10));
+	public void redstoneSignalLocksFeeder(GameTestHelper helper) {
+		ItemFeederBlockEntity feeder = feeder(helper);
+		helper.setBlock(FEEDER.east(), Blocks.REDSTONE_BLOCK);
+		feeder.setItem(0, new ItemStack(Items.DIRT, 10));
 		helper.runAfterDelay(20, () -> {
-			helper.assertBlockProperty(GATE, ItemGateBlock.ENABLED, false);
+			helper.assertBlockProperty(FEEDER, ItemFeederBlock.ENABLED, false);
 			helper.assertValueEqual(droppedItems(helper).size(), 0, "dropped entities");
 			helper.succeed();
 		});
@@ -131,25 +131,25 @@ public class ItemGateGameTest {
 
 	@GameTest(maxTicks = 40)
 	public void hopperFeedsGateAndComparatorReadsIt(GameTestHelper helper) {
-		ItemGateBlockEntity gate = gate(helper);
+		ItemFeederBlockEntity feeder = feeder(helper);
 		helper.setBlock(BELOW, Blocks.STONE);
-		BlockPos hopper = GATE.above();
+		BlockPos hopper = FEEDER.above();
 		helper.setBlock(hopper, Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.DOWN));
 		helper.getBlockEntity(hopper, HopperBlockEntity.class).setItem(0, new ItemStack(Items.DIRT, 3));
 		helper.succeedWhen(() -> {
-			helper.assertValueEqual(gate.countItem(Items.DIRT), 3, "dirt moved into gate");
-			helper.assertTrue(AbstractContainerMenu.getRedstoneSignalFromBlockEntity(gate) > 0, "comparator signal");
+			helper.assertValueEqual(feeder.countItem(Items.DIRT), 3, "dirt moved into feeder");
+			helper.assertTrue(AbstractContainerMenu.getRedstoneSignalFromBlockEntity(feeder) > 0, "comparator signal");
 		});
 	}
 
 	@GameTest
 	public void breakingDropsContentsIncludingLoadedShulker(GameTestHelper helper) {
-		ItemGateBlockEntity gate = gate(helper);
+		ItemFeederBlockEntity feeder = feeder(helper);
 		helper.setBlock(BELOW, Blocks.STONE);
-		gate.setItem(0, shulkerWith(new ItemStack(Items.DIAMOND, 4)));
-		gate.setItem(1, new ItemStack(Items.DIRT, 7));
+		feeder.setItem(0, shulkerWith(new ItemStack(Items.DIAMOND, 4)));
+		feeder.setItem(1, new ItemStack(Items.DIRT, 7));
 
-		helper.getLevel().destroyBlock(helper.absolutePos(GATE), true);
+		helper.getLevel().destroyBlock(helper.absolutePos(FEEDER), true);
 
 		helper.assertValueEqual(droppedCount(helper, Items.DIRT), 7, "dirt dropped");
 		ItemStack box = droppedItems(helper).stream().map(ItemEntity::getItem).filter(s -> s.is(Items.SHULKER_BOX)).findFirst().orElse(ItemStack.EMPTY);
@@ -158,15 +158,15 @@ public class ItemGateGameTest {
 	}
 
 	@GameTest(maxTicks = 100)
-	public void feedsSorterHopperThroughTheAir(GameTestHelper helper) {
-		BlockPos sorterPos = new BlockPos(1, 2, 1);
+	public void feedsFilterHopperThroughTheAir(GameTestHelper helper) {
+		BlockPos filterHopperPos = new BlockPos(1, 2, 1);
 		BlockPos chest = new BlockPos(1, 1, 1);
-		ItemGateBlockEntity gate = gate(helper);
-		helper.setBlock(sorterPos, ModBlocks.SORTER_HOPPER);
+		ItemFeederBlockEntity feeder = feeder(helper);
+		helper.setBlock(filterHopperPos, ModBlocks.FILTER_HOPPER);
 		helper.setBlock(chest, Blocks.CHEST);
-		helper.getBlockEntity(sorterPos, SorterHopperBlockEntity.class).setFilterItem(new ItemStack(Items.DIAMOND));
-		gate.setItem(0, new ItemStack(Items.DIAMOND, 4));
-		gate.setItem(1, new ItemStack(Items.DIRT, 2));
+		helper.getBlockEntity(filterHopperPos, FilterHopperBlockEntity.class).setFilterItem(new ItemStack(Items.DIAMOND));
+		feeder.setItem(0, new ItemStack(Items.DIAMOND, 4));
+		feeder.setItem(1, new ItemStack(Items.DIRT, 2));
 
 		helper.succeedWhen(() -> {
 			helper.assertValueEqual(helper.getBlockEntity(chest, ChestBlockEntity.class).countItem(Items.DIAMOND), 4, "diamonds sorted");
@@ -194,10 +194,10 @@ public class ItemGateGameTest {
 	}
 
 	@GameTest
-	public void breakingDropsItemGateItem(GameTestHelper helper) {
-		gate(helper);
-		helper.getLevel().destroyBlock(helper.absolutePos(GATE), true);
-		helper.assertItemEntityPresent(ModBlocks.ITEM_GATE.asItem(), GATE, 2.0);
+	public void breakingDropsItemFeederItem(GameTestHelper helper) {
+		feeder(helper);
+		helper.getLevel().destroyBlock(helper.absolutePos(FEEDER), true);
+		helper.assertItemEntityPresent(ModBlocks.ITEM_FEEDER.asItem(), FEEDER, 2.0);
 		helper.succeed();
 	}
 }

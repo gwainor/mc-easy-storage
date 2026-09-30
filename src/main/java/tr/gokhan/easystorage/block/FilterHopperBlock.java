@@ -38,21 +38,21 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
-import tr.gokhan.easystorage.block.entity.SorterHopperBlockEntity;
+import tr.gokhan.easystorage.block.entity.FilterHopperBlockEntity;
 import tr.gokhan.easystorage.registry.ModBlockEntities;
 
 /**
  * A hopper that only accepts items matching its filter item. Shape, placement,
  * redstone locking and comparator output mirror the vanilla {@link net.minecraft.world.level.block.HopperBlock}.
  */
-public class SorterHopperBlock extends BaseEntityBlock {
-	public static final MapCodec<SorterHopperBlock> CODEC = simpleCodec(SorterHopperBlock::new);
+public class FilterHopperBlock extends BaseEntityBlock {
+	public static final MapCodec<FilterHopperBlock> CODEC = simpleCodec(FilterHopperBlock::new);
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING_HOPPER;
 	public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 	private final Function<BlockState, VoxelShape> shapes;
 	private final Map<Direction, VoxelShape> interactionShapes;
 
-	public SorterHopperBlock(BlockBehaviour.Properties properties) {
+	public FilterHopperBlock(BlockBehaviour.Properties properties) {
 		super(properties);
 		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(ENABLED, true));
 		VoxelShape inside = Block.column(12.0, 11.0, 16.0);
@@ -64,7 +64,7 @@ public class SorterHopperBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public MapCodec<SorterHopperBlock> codec() {
+	public MapCodec<FilterHopperBlock> codec() {
 		return CODEC;
 	}
 
@@ -97,12 +97,12 @@ public class SorterHopperBlock extends BaseEntityBlock {
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new SorterHopperBlockEntity(pos, state);
+		return new FilterHopperBlockEntity(pos, state);
 	}
 
 	@Override
 	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-		return level.isClientSide() ? null : createTickerHelper(type, ModBlockEntities.SORTER_HOPPER, SorterHopperBlockEntity::pushItemsTick);
+		return level.isClientSide() ? null : createTickerHelper(type, ModBlockEntities.FILTER_HOPPER, FilterHopperBlockEntity::pushItemsTick);
 	}
 
 	@Override
@@ -114,8 +114,8 @@ public class SorterHopperBlock extends BaseEntityBlock {
 
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-		if (!level.isClientSide() && level.getBlockEntity(pos) instanceof SorterHopperBlockEntity sorter) {
-			player.openMenu(sorter);
+		if (!level.isClientSide() && level.getBlockEntity(pos) instanceof FilterHopperBlockEntity filterHopper) {
+			player.openMenu(filterHopper);
 		}
 		return InteractionResult.SUCCESS;
 	}
@@ -165,8 +165,8 @@ public class SorterHopperBlock extends BaseEntityBlock {
 
 	@Override
 	protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecise) {
-		if (level.getBlockEntity(pos) instanceof SorterHopperBlockEntity sorter) {
-			SorterHopperBlockEntity.entityInside(level, pos, state, entity, sorter);
+		if (level.getBlockEntity(pos) instanceof FilterHopperBlockEntity filterHopper) {
+			FilterHopperBlockEntity.entityInside(level, pos, state, entity, filterHopper);
 		}
 	}
 

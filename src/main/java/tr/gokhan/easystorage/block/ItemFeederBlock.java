@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
-import tr.gokhan.easystorage.block.entity.ItemGateBlockEntity;
+import tr.gokhan.easystorage.block.entity.ItemFeederBlockEntity;
 import tr.gokhan.easystorage.registry.ModBlockEntities;
 
 /**
@@ -36,19 +36,19 @@ import tr.gokhan.easystorage.registry.ModBlockEntities;
  * the vanilla {@link net.minecraft.world.level.block.BarrelBlock}; redstone
  * locking mirrors the vanilla hopper.
  */
-public class ItemGateBlock extends BaseEntityBlock {
-	public static final MapCodec<ItemGateBlock> CODEC = simpleCodec(ItemGateBlock::new);
+public class ItemFeederBlock extends BaseEntityBlock {
+	public static final MapCodec<ItemFeederBlock> CODEC = simpleCodec(ItemFeederBlock::new);
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
 	public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
 	public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
-	public ItemGateBlock(BlockBehaviour.Properties properties) {
+	public ItemFeederBlock(BlockBehaviour.Properties properties) {
 		super(properties);
 		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(OPEN, false).setValue(ENABLED, true));
 	}
 
 	@Override
-	public MapCodec<ItemGateBlock> codec() {
+	public MapCodec<ItemFeederBlock> codec() {
 		return CODEC;
 	}
 
@@ -59,18 +59,18 @@ public class ItemGateBlock extends BaseEntityBlock {
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new ItemGateBlockEntity(pos, state);
+		return new ItemFeederBlockEntity(pos, state);
 	}
 
 	@Override
 	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-		return level.isClientSide() ? null : createTickerHelper(type, ModBlockEntities.ITEM_GATE, ItemGateBlockEntity::dropTick);
+		return level.isClientSide() ? null : createTickerHelper(type, ModBlockEntities.ITEM_FEEDER, ItemFeederBlockEntity::dropTick);
 	}
 
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-		if (!level.isClientSide() && level.getBlockEntity(pos) instanceof ItemGateBlockEntity gate) {
-			player.openMenu(gate);
+		if (!level.isClientSide() && level.getBlockEntity(pos) instanceof ItemFeederBlockEntity feeder) {
+			player.openMenu(feeder);
 		}
 		return InteractionResult.SUCCESS;
 	}
@@ -78,8 +78,8 @@ public class ItemGateBlock extends BaseEntityBlock {
 	@Override
 	protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
 		// Scheduled by the openers counter to re-check who still has the screen open.
-		if (level.getBlockEntity(pos) instanceof ItemGateBlockEntity gate) {
-			gate.recheckOpen();
+		if (level.getBlockEntity(pos) instanceof ItemFeederBlockEntity feeder) {
+			feeder.recheckOpen();
 		}
 	}
 

@@ -5,13 +5,13 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import tr.gokhan.easystorage.EasyStorage;
-import tr.gokhan.easystorage.menu.SorterHopperMenu;
+import tr.gokhan.easystorage.menu.FilterHopperMenu;
 
 public final class ModMenus {
-	public static final MenuType<SorterHopperMenu> SORTER_HOPPER = Registry.register(
+	public static final MenuType<FilterHopperMenu> FILTER_HOPPER = Registry.register(
 		BuiltInRegistries.MENU,
-		EasyStorage.id("sorter_hopper"),
-		new MenuType<>(SorterHopperMenu::new, FeatureFlags.VANILLA_SET)
+		EasyStorage.id("filter_hopper"),
+		new MenuType<>(FilterHopperMenu::new, FeatureFlags.VANILLA_SET)
 	);
 
 	private ModMenus() {

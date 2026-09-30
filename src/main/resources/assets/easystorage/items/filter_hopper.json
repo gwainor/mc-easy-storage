@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "easystorage:block/item_gate"
+    "model": "easystorage:item/filter_hopper"
   }
 }

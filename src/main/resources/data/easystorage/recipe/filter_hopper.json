@@ -2,12 +2,11 @@
   "type": "minecraft:crafting_shapeless",
   "category": "redstone",
   "ingredients": [
-    "minecraft:barrel",
-    "minecraft:dropper",
     "minecraft:hopper",
-    "minecraft:repeater"
+    "minecraft:comparator",
+    "minecraft:observer"
   ],
   "result": {
-    "id": "easystorage:item_gate"
+    "id": "easystorage:filter_hopper"
   }
 }
