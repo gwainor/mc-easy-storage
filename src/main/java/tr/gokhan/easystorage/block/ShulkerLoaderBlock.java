@@ -12,6 +12,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jspecify.annotations.Nullable;
+import tr.gokhan.easystorage.registry.ModBlockEntities;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -44,6 +49,30 @@ public class ShulkerLoaderBlock extends BaseEntityBlock {
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new ShulkerLoaderBlockEntity(pos, state);
+	}
+
+	@Override
+	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+		return level.isClientSide() ? null : createTickerHelper(type, ModBlockEntities.SHULKER_LOADER, ShulkerLoaderBlockEntity::serverTick);
+	}
+
+	@Override
+	protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+		if (!oldState.is(state.getBlock()) && level.hasNeighborSignal(pos) != state.getValue(TRIGGERED)) {
+			level.setBlock(pos, state.setValue(TRIGGERED, !state.getValue(TRIGGERED)), Block.UPDATE_CLIENTS);
+		}
+	}
+
+	@Override
+	protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+		boolean powered = level.hasNeighborSignal(pos);
+		if (powered == state.getValue(TRIGGERED)) {
+			return;
+		}
+		level.setBlock(pos, state.setValue(TRIGGERED, powered), Block.UPDATE_CLIENTS);
+		if (powered && level.getBlockEntity(pos) instanceof ShulkerLoaderBlockEntity loader) {
+			loader.requestDrop();
+		}
 	}
 
 	@Override

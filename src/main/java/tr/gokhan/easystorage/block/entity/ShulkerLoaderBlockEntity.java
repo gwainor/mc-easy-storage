@@ -6,15 +6,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.phys.Vec3;
+import tr.gokhan.easystorage.block.ShulkerLoaderBlock;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -36,6 +42,7 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 	private static final Component DEFAULT_NAME = Component.translatable("container.easystorage.shulker_loader");
 
 	private NonNullList<ItemStack> items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
+	private boolean pendingDrop;
 
 	public ShulkerLoaderBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.SHULKER_LOADER, pos, state);
@@ -71,6 +78,45 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 			}
 		}
 		return false;
+	}
+
+	public void requestDrop() {
+		if (this.hasBox()) {
+			this.pendingDrop = true;
+			this.setChanged();
+		}
+	}
+
+	public boolean isDropPending() {
+		return this.pendingDrop;
+	}
+
+	public static void serverTick(Level level, BlockPos pos, BlockState state, ShulkerLoaderBlockEntity loader) {
+		if (!loader.hasBox()) {
+			loader.pendingDrop = false;
+			return;
+		}
+		if ((loader.pendingDrop || (!state.getValue(ShulkerLoaderBlock.TRIGGERED) && loader.isContentFull())) && !loader.tryDrop(level, pos, state.getValue(ShulkerLoaderBlock.FACING))) {
+			loader.pendingDrop = true;
+		}
+	}
+
+	private boolean tryDrop(Level level, BlockPos pos, Direction facing) {
+		this.writeContentsToBox();
+		ItemStack box = this.getBox().copy();
+		Container into = HopperBlockEntity.getContainerAt(level, pos.relative(facing));
+		if (into != null) {
+			if (!HopperBlockEntity.addItem(this, into, box, facing.getOpposite()).isEmpty()) {
+				return false;
+			}
+		} else {
+			DefaultDispenseItemBehavior.spawnItem(level, box, 6, facing, Vec3.atCenterOf(pos).add(0.7 * facing.getStepX(), 0.7 * facing.getStepY(), 0.7 * facing.getStepZ()));
+			level.levelEvent(1000, pos, 0);
+			level.levelEvent(2000, pos, facing.get3DDataValue());
+		}
+		this.removeItem(BOX_SLOT, 1);
+		this.pendingDrop = false;
+		return true;
 	}
 
 	public int getAnalogSignal() {
@@ -175,7 +221,14 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 
 	@Override
 	public boolean canPlaceItemThroughFace(int slot, ItemStack stack, @Nullable Direction direction) {
-		return this.canPlaceItem(slot, stack);
+		if (this.pendingDrop || this.getBlockState().getValue(ShulkerLoaderBlock.TRIGGERED) || !this.canPlaceItem(slot, stack)) {
+			return false;
+		}
+		if (slot != BOX_SLOT && !this.fits(stack)) {
+			this.requestDrop();
+			return false;
+		}
+		return true;
 	}
 
 	@Override
@@ -191,12 +244,14 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 		this.items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
 		this.items.set(BOX_SLOT, input.read("box", ItemStack.CODEC).orElse(ItemStack.EMPTY));
 		this.loadContentsFromBox();
+		this.pendingDrop = input.getBooleanOr("PendingDrop", false);
 	}
 
 	@Override
 	protected void saveAdditional(ValueOutput output) {
 		super.saveAdditional(output);
 		this.writeContentsToBox();
+		output.putBoolean("PendingDrop", this.pendingDrop);
 		if (this.hasBox()) {
 			output.store("box", ItemStack.CODEC, this.getBox());
 		}
