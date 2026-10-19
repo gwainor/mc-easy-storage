@@ -2,6 +2,9 @@
 
 Deferred work, newest first.
 
+## Shulker Loader
+- Final textures and screen art (placeholders in v1).
+
 ## Filter Hopper
 - Show the filter item on top of the placed block (block entity renderer + sync the
   filter item to the client).

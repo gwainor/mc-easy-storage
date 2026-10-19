@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "easystorage:block/shulker_loader_front",
+    "bottom": "easystorage:block/shulker_loader_back",
+    "side": "easystorage:block/shulker_loader_side"
+  }
+}

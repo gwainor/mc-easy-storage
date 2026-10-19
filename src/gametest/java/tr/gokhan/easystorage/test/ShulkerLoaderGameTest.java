@@ -442,4 +442,12 @@ public class ShulkerLoaderGameTest {
 		helper.assertFalse(menu.getSlot(ShulkerLoaderMenu.CONTENT_START).mayPlace(new ItemStack(Items.SHULKER_BOX)), "no nested boxes");
 		helper.succeed();
 	}
+
+	@GameTest
+	public void breakingDropsShulkerLoaderItem(GameTestHelper helper) {
+		loader(helper);
+		helper.getLevel().destroyBlock(helper.absolutePos(LOADER), true);
+		helper.assertItemEntityPresent(ModBlocks.SHULKER_LOADER.asItem(), LOADER, 2.0);
+		helper.succeed();
+	}
 }

@@ -17,6 +17,10 @@ BASE = (0x3A, 0x6E, 0xA5)
 LIGHT = (0x6F, 0x9C, 0xCC)
 DARK = (0x22, 0x3F, 0x60)
 
+# Shulker Loader: same iron; orange marks the output face (mod-wide convention).
+ORANGE = (0xE0, 0x7A, 0x1F)
+HOLE = (0x10, 0x10, 0x10)
+
 
 def png(path, pixels):
     raw = b"".join(b"\x00" + bytes(c for px in row for c in px) for row in pixels)
@@ -60,11 +64,25 @@ def texture(seed, fill, edge_top, edge_bottom):
     return rows
 
 
+def face(seed, hole):
+    """Loader front: iron with an orange-ringed hole, or plain back when hole is False."""
+    rows = texture(seed, BASE, LIGHT, DARK)
+    if hole:
+        for y in range(5, 11):
+            for x in range(5, 11):
+                ring = x in (5, 10) or y in (5, 10)
+                rows[y][x] = (ORANGE if ring else HOLE) + (255,)
+    return rows
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     png(OUT / "filter_hopper_outside.png", texture(1, BASE, LIGHT, DARK))
     png(OUT / "filter_hopper_top.png", texture(2, LIGHT, shade(LIGHT, 30), BASE))
     png(OUT / "filter_hopper_inside.png", texture(3, DARK, BASE, shade(DARK, -20)))
+    png(OUT / "shulker_loader_side.png", texture(4, BASE, LIGHT, DARK))
+    png(OUT / "shulker_loader_front.png", face(5, True))
+    png(OUT / "shulker_loader_back.png", face(6, False))
     print(f"wrote placeholders to {OUT}")
 
 
