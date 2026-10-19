@@ -97,6 +97,7 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 			loader.pendingDrop = false;
 			return;
 		}
+		// A pending drop fires even while powered; a fresh full-box drop needs the Loader unpowered.
 		if ((loader.pendingDrop || (!state.getValue(ShulkerLoaderBlock.TRIGGERED) && loader.isContentFull())) && !loader.tryDrop(level, pos, state.getValue(ShulkerLoaderBlock.FACING))) {
 			loader.pendingDrop = true;
 		}
@@ -171,6 +172,9 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 			super.setItem(slot, stack);
 			return;
 		}
+		// Hoppers can leave the outgoing box stale (restored counts skip setChanged), so write it back first.
+		this.writeContentsToBox();
+		this.pendingDrop = false;
 		this.items.set(BOX_SLOT, stack);
 		stack.limitSize(this.getMaxStackSize(stack));
 		this.loadContentsFromBox();
@@ -183,6 +187,7 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 			return super.removeItemNoUpdate(slot);
 		}
 		this.writeContentsToBox();
+		this.pendingDrop = false;
 		ItemStack box = this.items.set(BOX_SLOT, ItemStack.EMPTY);
 		this.clearContents();
 		return box;
@@ -225,6 +230,7 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 		if (this.pendingDrop || this.getBlockState().getValue(ShulkerLoaderBlock.TRIGGERED) || !this.canPlaceItem(slot, stack)) {
 			return false;
 		}
+		// Intentional side effect: refusing a non-fitting item also marks the box full (requestDrop).
 		if (slot != BOX_SLOT && !this.fits(stack)) {
 			this.requestDrop();
 			return false;

@@ -136,6 +136,31 @@ public class ShulkerLoaderGameTest {
 	}
 
 	@GameTest
+	public void swappingBoxAfterFailedHopperPullKeepsContents(GameTestHelper helper) {
+		ShulkerLoaderBlockEntity loader = loader(helper);
+		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, new ItemStack(Items.SHULKER_BOX));
+		loader.setItem(ShulkerLoaderBlockEntity.CONTENT_START, new ItemStack(Items.DIAMOND, 5));
+		loader.setChanged();
+		ItemStack box = loader.getBox();
+		// Mimic a hopper that pulls one item, cannot place it, and restores the count without setChanged.
+		ItemStack pulled = loader.removeItem(ShulkerLoaderBlockEntity.CONTENT_START, 1);
+		loader.getItem(ShulkerLoaderBlockEntity.CONTENT_START).setCount(pulled.getCount() + 4);
+		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, ItemStack.EMPTY);
+		helper.assertTrue(stored(box, Items.DIAMOND) == 5, "swapped-out box should hold 5 diamonds, had " + stored(box, Items.DIAMOND));
+		helper.succeed();
+	}
+
+	@GameTest
+	public void replacingBoxClearsPendingDrop(GameTestHelper helper) {
+		ShulkerLoaderBlockEntity loader = loader(helper);
+		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, new ItemStack(Items.SHULKER_BOX));
+		loader.requestDrop();
+		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, new ItemStack(Items.SHULKER_BOX));
+		helper.assertFalse(loader.isDropPending(), "pending drop should clear with the box");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void takingBoxCarriesContentsAndClears(GameTestHelper helper) {
 		ShulkerLoaderBlockEntity loader = loader(helper);
 		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, new ItemStack(Items.SHULKER_BOX));
