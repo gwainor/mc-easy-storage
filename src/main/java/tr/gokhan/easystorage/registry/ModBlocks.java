@@ -13,10 +13,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import tr.gokhan.easystorage.EasyStorage;
-import tr.gokhan.easystorage.block.ItemFeederBlock;
 import tr.gokhan.easystorage.block.FilterHopperBlock;
 
 public final class ModBlocks {
@@ -24,12 +22,6 @@ public final class ModBlocks {
 		"filter_hopper",
 		FilterHopperBlock::new,
 		BlockBehaviour.Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().strength(3.0F, 4.8F).sound(SoundType.METAL).noOcclusion()
-	);
-
-	public static final Block ITEM_FEEDER = register(
-		"item_feeder",
-		ItemFeederBlock::new,
-		BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).instrument(NoteBlockInstrument.BASS).strength(2.5F).sound(SoundType.WOOD).ignitedByLava()
 	);
 
 	private ModBlocks() {
@@ -44,9 +36,6 @@ public final class ModBlocks {
 	}
 
 	public static void initialize() {
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.REDSTONE_BLOCKS).register(output -> {
-			output.accept(FILTER_HOPPER);
-			output.accept(ITEM_FEEDER);
-		});
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.REDSTONE_BLOCKS).register(output -> output.accept(FILTER_HOPPER));
 	}
 }

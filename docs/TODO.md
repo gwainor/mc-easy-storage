@@ -2,11 +2,6 @@
 
 Deferred work, newest first.
 
-## Item Feeder
-- Final textures (placeholders in v1).
-- Optionally block extraction through the output face.
-- Optional speed config; optional drop sound/particles.
-
 ## Filter Hopper
 - Show the filter item on top of the placed block (block entity renderer + sync the
   filter item to the client).
