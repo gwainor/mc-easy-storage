@@ -21,7 +21,11 @@ redstone.
 - The front (output) face is marked orange, following the mod-wide convention.
 
 ### Inventory model
-- **Box slot:** holds at most one shulker box (any colour).
+- **Box slot:** holds at most one shulker box (any colour). The limit is a hard
+  slot limit of 1, not the item's max stack size, so it still holds one when a
+  mod (e.g. Carpet's shulker box stacking) makes shulker boxes stackable. A
+  hopper, dropper, or the player (click or shift-click) offering a stack of
+  boxes moves exactly one; the rest stay where they were.
 - **Content slots:** 27 slots that are the loaded box's contents.
 - With no box loaded, the content slots are empty and accept nothing.
 - When the box leaves the Loader (drop, player takes it, block broken), it carries
@@ -108,7 +112,7 @@ redstone.
 
 ## Testing
 - GameTests in `src/gametest`, alongside `FilterHopperGameTest`, covering: box
-  acceptance and the one-box rule, item refusal without a box, drop when an
+  acceptance and the one-box rule (including a stack of boxes offered), item refusal without a box, drop when an
   incoming item does not fit, pending drop when the front is blocked, fill-then-drop into
   a container and as an item entity, redstone pulse drop and lock, hopper-below
   extraction, contents preserved on drop and on block break, loot table.
