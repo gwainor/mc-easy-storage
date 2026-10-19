@@ -34,6 +34,7 @@ public class FilterHopperMenu extends AbstractContainerMenu {
 
 	public FilterHopperMenu(int containerId, Inventory inventory, Container buffer, Container filter) {
 		this(ModMenus.FILTER_HOPPER, containerId, inventory, buffer, filter, FILTER_X, SLOT_Y, 1, BUFFER_X, SLOT_Y, INVENTORY_Y);
+		checkContainerSize(filter, 1);
 	}
 
 	protected FilterHopperMenu(MenuType<?> type, int containerId, Inventory inventory, Container buffer, Container filter,

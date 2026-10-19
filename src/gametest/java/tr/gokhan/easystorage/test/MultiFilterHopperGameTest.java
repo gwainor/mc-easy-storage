@@ -3,6 +3,8 @@ package tr.gokhan.easystorage.test;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -15,6 +17,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 import tr.gokhan.easystorage.block.FilterHopperBlock;
 import tr.gokhan.easystorage.block.entity.MultiFilterHopperBlockEntity;
@@ -200,6 +203,38 @@ public class MultiFilterHopperGameTest {
 		menu.clicked(dirtSlot, 0, ContainerInput.QUICK_MOVE, player);
 		helper.assertValueEqual(menu.getSlot(dirtSlot).getItem().getCount(), 3, "dirt stays in inventory");
 		helper.assertValueEqual(hopper.countItem(Items.DIRT), 0, "dirt in buffer");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void shiftClickUsesNextEmptyFilterSlot(GameTestHelper helper) {
+		MultiFilterHopperBlockEntity hopper = column(helper, new ItemStack(Items.STONE), new ItemStack(Items.COBBLESTONE));
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		MultiFilterHopperMenu menu = new MultiFilterHopperMenu(0, player.getInventory(), hopper, hopper.getFilter());
+		int dirtSlot = MultiFilterHopperMenu.BUFFER_END;
+		menu.getSlot(dirtSlot).set(new ItemStack(Items.DIRT, 5));
+
+		menu.clicked(dirtSlot, 0, ContainerInput.QUICK_MOVE, player);
+		helper.assertTrue(hopper.getFilter().getItem(2).is(Items.DIRT), "filter slot 2 holds dirt");
+		helper.assertValueEqual(hopper.getFilter().getItem(2).getCount(), 1, "filter count");
+		helper.assertValueEqual(menu.getSlot(dirtSlot).getItem().getCount(), 4, "dirt left in inventory");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void saveLoadRoundTripKeepsAllFilters(GameTestHelper helper) {
+		var registries = helper.getLevel().registryAccess();
+		MultiFilterHopperBlockEntity hopper = column(helper);
+		hopper.setFilterItem(0, new ItemStack(Items.DIAMOND));
+		hopper.setFilterItem(13, new ItemStack(Items.EMERALD));
+		hopper.setFilterItem(26, new ItemStack(Items.GOLD_INGOT));
+		CompoundTag tag = hopper.saveWithoutMetadata(registries);
+		MultiFilterHopperBlockEntity fresh = new MultiFilterHopperBlockEntity(helper.absolutePos(HOPPER), hopper.getBlockState());
+		fresh.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, registries, tag));
+		helper.assertTrue(fresh.getFilter().getItem(0).is(Items.DIAMOND), "slot 0 kept");
+		helper.assertTrue(fresh.getFilter().getItem(13).is(Items.EMERALD), "slot 13 kept");
+		helper.assertTrue(fresh.getFilter().getItem(26).is(Items.GOLD_INGOT), "slot 26 kept");
+		helper.assertTrue(fresh.getFilter().getItem(1).isEmpty(), "slot 1 empty");
 		helper.succeed();
 	}
 
