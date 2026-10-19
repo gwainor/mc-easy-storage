@@ -2,12 +2,15 @@
 
 Deferred work, newest first.
 
+## Multi Filter Hopper
+- Final textures and screen art (placeholders in v1).
+
 ## Shulker Loader
 - Final textures and screen art (placeholders in v1).
 
 ## Filter Hopper
-- Show the filter item on top of the placed block (block entity renderer + sync the
-  filter item to the client).
+- Show the filter item on top of the placed block, for both the Filter Hopper and the
+  Multi Filter Hopper (block entity renderer + sync the filter item(s) to the client).
 - Final textures and screen art (placeholders in v1).
 - Screen labels "Filter" / "Buffer" (come with final art).
 - Place in creative tab right after the vanilla hopper instead of at the end.

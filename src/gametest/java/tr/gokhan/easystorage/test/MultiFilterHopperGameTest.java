@@ -202,4 +202,12 @@ public class MultiFilterHopperGameTest {
 		helper.assertValueEqual(hopper.countItem(Items.DIRT), 0, "dirt in buffer");
 		helper.succeed();
 	}
+
+	@GameTest
+	public void breakingDropsMultiFilterHopperItem(GameTestHelper helper) {
+		helper.setBlock(HOPPER, ModBlocks.MULTI_FILTER_HOPPER);
+		helper.getLevel().destroyBlock(helper.absolutePos(HOPPER), true);
+		helper.assertItemEntityPresent(ModBlocks.MULTI_FILTER_HOPPER.asItem(), HOPPER, 2.0);
+		helper.succeed();
+	}
 }

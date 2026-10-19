@@ -30,6 +30,15 @@ filter hopper in an SS3 item sorter, without comparators or dummy items.
 - A redstone signal locks it. Comparators read only the 5 buffer slots.
 - Recipe (shapeless): hopper + comparator + observer.
 
+### Multi Filter Hopper
+
+A Filter Hopper with 27 filter slots (a 3x9 grid) instead of one, so a single
+hopper can sort a whole set of item types.
+
+- An item is accepted if it matches any filter slot. Empty slots match nothing.
+- Same buffer, speed, redstone lock and comparator behavior as the Filter Hopper.
+- Recipe (shapeless): filter hopper + chest + diamond.
+
 ### Shulker Loader
 
 A dropper-like block that packs items into a shulker box and drops the box when
