@@ -1,5 +1,6 @@
 package tr.gokhan.easystorage.block.entity;
 
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,8 +15,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.Hopper;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,7 +30,8 @@ import tr.gokhan.easystorage.registry.ModBlockEntities;
 
 /**
  * Block entity for the Filter Hopper. The {@link Container} it exposes is the
- * 5-slot buffer only; the filter lives in a separate 1-slot container that
+ * 5-slot buffer only; the filter lives in a separate container (1 slot, or more
+ * in subclasses) that
  * automation never sees. Transfer timing follows the vanilla hopper.
  */
 public class FilterHopperBlockEntity extends BaseContainerBlockEntity implements Hopper {
@@ -36,22 +40,27 @@ public class FilterHopperBlockEntity extends BaseContainerBlockEntity implements
 	private static final Component DEFAULT_NAME = Component.translatable("container.easystorage.filter_hopper");
 
 	private NonNullList<ItemStack> items = NonNullList.withSize(BUFFER_SIZE, ItemStack.EMPTY);
-	private final SimpleContainer filter = new SimpleContainer(1) {
-		@Override
-		public int getMaxStackSize() {
-			return 1;
-		}
-
-		@Override
-		public void setChanged() {
-			super.setChanged();
-			FilterHopperBlockEntity.this.setChanged();
-		}
-	};
+	private final SimpleContainer filter;
 	private int cooldownTime = NO_COOLDOWN;
 
 	public FilterHopperBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.FILTER_HOPPER, pos, state);
+		this(ModBlockEntities.FILTER_HOPPER, pos, state, 1);
+	}
+
+	protected FilterHopperBlockEntity(BlockEntityType<? extends FilterHopperBlockEntity> type, BlockPos pos, BlockState state, int filterSize) {
+		super(type, pos, state);
+		this.filter = new SimpleContainer(filterSize) {
+			@Override
+			public int getMaxStackSize() {
+				return 1;
+			}
+
+			@Override
+			public void setChanged() {
+				super.setChanged();
+				FilterHopperBlockEntity.this.setChanged();
+			}
+		};
 	}
 
 	public Container getFilter() {
@@ -63,17 +72,27 @@ public class FilterHopperBlockEntity extends BaseContainerBlockEntity implements
 	}
 
 	public void setFilterItem(ItemStack stack) {
-		this.filter.setItem(0, stack.copyWithCount(1));
+		this.setFilterItem(0, stack);
 	}
 
-	/** True when {@code stack} has the same item type as the filter. Components are ignored. */
-	public static boolean matchesFilter(ItemStack filterItem, ItemStack stack) {
-		return !filterItem.isEmpty() && stack.is(filterItem.getItem());
+	public void setFilterItem(int slot, ItemStack stack) {
+		this.filter.setItem(slot, stack.copyWithCount(1));
+	}
+
+	/** True when {@code stack} has the same item type as any non-empty filter slot. Components are ignored. */
+	public static boolean matchesFilter(Container filter, ItemStack stack) {
+		for (int i = 0; i < filter.getContainerSize(); i++) {
+			ItemStack filterItem = filter.getItem(i);
+			if (!filterItem.isEmpty() && stack.is(filterItem.getItem())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
 	public boolean canPlaceItem(int slot, ItemStack stack) {
-		return matchesFilter(this.getFilterItem(), stack);
+		return matchesFilter(this.filter, stack);
 	}
 
 	@Override
@@ -81,7 +100,18 @@ public class FilterHopperBlockEntity extends BaseContainerBlockEntity implements
 		super.loadAdditional(input);
 		this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
 		ContainerHelper.loadAllItems(input, this.items);
-		this.filter.setItem(0, input.read("filter", ItemStack.CODEC).orElse(ItemStack.EMPTY));
+		this.filter.clearContent();
+		Optional<ItemContainerContents> filters = input.read("filters", ItemContainerContents.CODEC);
+		if (filters.isPresent()) {
+			NonNullList<ItemStack> loaded = NonNullList.withSize(this.filter.getContainerSize(), ItemStack.EMPTY);
+			filters.get().copyInto(loaded);
+			for (int i = 0; i < loaded.size(); i++) {
+				this.filter.setItem(i, loaded.get(i));
+			}
+		} else {
+			// Saves from before multi-slot filters stored one "filter" stack.
+			this.filter.setItem(0, input.read("filter", ItemStack.CODEC).orElse(ItemStack.EMPTY));
+		}
 		this.cooldownTime = input.getIntOr("TransferCooldown", NO_COOLDOWN);
 	}
 
@@ -89,9 +119,8 @@ public class FilterHopperBlockEntity extends BaseContainerBlockEntity implements
 	protected void saveAdditional(ValueOutput output) {
 		super.saveAdditional(output);
 		ContainerHelper.saveAllItems(output, this.items);
-		ItemStack filterItem = this.getFilterItem();
-		if (!filterItem.isEmpty()) {
-			output.store("filter", ItemStack.CODEC, filterItem);
+		if (!this.filter.isEmpty()) {
+			output.store("filters", ItemContainerContents.CODEC, ItemContainerContents.fromItems(this.filter.getItems()));
 		}
 		output.putInt("TransferCooldown", this.cooldownTime);
 	}

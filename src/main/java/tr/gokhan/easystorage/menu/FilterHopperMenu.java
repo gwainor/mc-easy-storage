@@ -5,6 +5,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import tr.gokhan.easystorage.block.entity.FilterHopperBlockEntity;
@@ -17,9 +18,14 @@ public class FilterHopperMenu extends AbstractContainerMenu {
 	public static final int FILTER_X = 17;
 	public static final int BUFFER_X = 62;
 	public static final int SLOT_Y = 20;
+	private static final int INVENTORY_Y = 51;
+	private static final int SCREEN_HEIGHT = 133;
 
 	private final Container buffer;
 	private final Container filter;
+	private final int filterSize;
+	private final int bufferStart;
+	private final int bufferEnd;
 
 	/** Client-side constructor. */
 	public FilterHopperMenu(int containerId, Inventory inventory) {
@@ -27,22 +33,39 @@ public class FilterHopperMenu extends AbstractContainerMenu {
 	}
 
 	public FilterHopperMenu(int containerId, Inventory inventory, Container buffer, Container filter) {
-		super(ModMenus.FILTER_HOPPER, containerId);
+		this(ModMenus.FILTER_HOPPER, containerId, inventory, buffer, filter, FILTER_X, SLOT_Y, 1, BUFFER_X, SLOT_Y, INVENTORY_Y);
+	}
+
+	protected FilterHopperMenu(MenuType<?> type, int containerId, Inventory inventory, Container buffer, Container filter,
+		int filterX, int filterY, int filterColumns, int bufferX, int bufferY, int inventoryY) {
+		super(type, containerId);
 		checkContainerSize(buffer, FilterHopperBlockEntity.BUFFER_SIZE);
-		checkContainerSize(filter, 1);
+		this.filterSize = filter.getContainerSize();
+		this.bufferStart = this.filterSize;
+		this.bufferEnd = this.bufferStart + FilterHopperBlockEntity.BUFFER_SIZE;
 		this.buffer = buffer;
 		this.filter = filter;
 		buffer.startOpen(inventory.player);
 
-		this.addSlot(new FilterSlot(filter, 0, FILTER_X, SLOT_Y));
-		for (int i = 0; i < FilterHopperBlockEntity.BUFFER_SIZE; i++) {
-			this.addSlot(new BufferSlot(buffer, i, BUFFER_X + i * 18, SLOT_Y));
+		for (int i = 0; i < this.filterSize; i++) {
+			this.addSlot(new FilterSlot(filter, i, filterX + i % filterColumns * 18, filterY + i / filterColumns * 18));
 		}
-		this.addStandardInventorySlots(inventory, 8, 51);
+		for (int i = 0; i < FilterHopperBlockEntity.BUFFER_SIZE; i++) {
+			this.addSlot(new BufferSlot(buffer, i, bufferX + i * 18, bufferY));
+		}
+		this.addStandardInventorySlots(inventory, 8, inventoryY);
 	}
 
-	private ItemStack filterItem() {
-		return this.filter.getItem(0);
+	public int filterSize() {
+		return this.filterSize;
+	}
+
+	public boolean isFilterSlot(Slot slot) {
+		return slot.container == this.filter;
+	}
+
+	public int screenHeight() {
+		return SCREEN_HEIGHT;
 	}
 
 	@Override
@@ -59,28 +82,28 @@ public class FilterHopperMenu extends AbstractContainerMenu {
 
 		ItemStack stack = slot.getItem();
 		ItemStack original = stack.copy();
-		if (slotIndex < BUFFER_END) {
-			if (!this.moveItemStackTo(stack, BUFFER_END, this.slots.size(), true)) {
+		if (slotIndex < this.bufferEnd) {
+			if (!this.moveItemStackTo(stack, this.bufferEnd, this.slots.size(), true)) {
 				return ItemStack.EMPTY;
 			}
-		} else if (this.filterItem().isEmpty()) {
-			if (!this.moveItemStackTo(stack, FILTER_SLOT, FILTER_SLOT + 1, false)) {
+		} else if (FilterHopperBlockEntity.matchesFilter(this.filter, stack)) {
+			if (!this.moveItemStackTo(stack, this.bufferStart, this.bufferEnd, false)) {
 				return ItemStack.EMPTY;
 			}
-			// Only one item ever goes into the filter slot. Report EMPTY (rather than the
+		} else {
+			int empty = this.firstEmptyFilterSlot();
+			if (empty < 0) {
+				return ItemStack.EMPTY;
+			}
+			// Only one item ever goes into a filter slot. Report EMPTY (rather than the
 			// remaining stack) so AbstractContainerMenu#clicked stops looping instead of
 			// re-invoking us and dumping the rest of the stack into the now-filled filter's buffer.
+			this.filter.setItem(empty, stack.split(1));
 			if (stack.isEmpty()) {
 				slot.setByPlayer(ItemStack.EMPTY);
 			} else {
 				slot.setChanged();
 			}
-			return ItemStack.EMPTY;
-		} else if (FilterHopperBlockEntity.matchesFilter(this.filterItem(), stack)) {
-			if (!this.moveItemStackTo(stack, BUFFER_START, BUFFER_END, false)) {
-				return ItemStack.EMPTY;
-			}
-		} else {
 			return ItemStack.EMPTY;
 		}
 
@@ -92,9 +115,18 @@ public class FilterHopperMenu extends AbstractContainerMenu {
 		return original;
 	}
 
+	private int firstEmptyFilterSlot() {
+		for (int i = 0; i < this.filterSize; i++) {
+			if (this.filter.getItem(i).isEmpty()) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	@Override
 	public boolean canTakeItemForPickAll(ItemStack carried, Slot target) {
-		if (target.container == this.filter) {
+		if (this.isFilterSlot(target)) {
 			return false;
 		}
 		return super.canTakeItemForPickAll(carried, target);
@@ -124,7 +156,7 @@ public class FilterHopperMenu extends AbstractContainerMenu {
 
 		@Override
 		public boolean mayPlace(ItemStack stack) {
-			return FilterHopperBlockEntity.matchesFilter(FilterHopperMenu.this.filterItem(), stack);
+			return FilterHopperBlockEntity.matchesFilter(FilterHopperMenu.this.filter, stack);
 		}
 	}
 }
