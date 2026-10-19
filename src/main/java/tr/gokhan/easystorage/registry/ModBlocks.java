@@ -17,12 +17,19 @@ import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import tr.gokhan.easystorage.EasyStorage;
 import tr.gokhan.easystorage.block.FilterHopperBlock;
+import tr.gokhan.easystorage.block.MultiFilterHopperBlock;
 import tr.gokhan.easystorage.block.ShulkerLoaderBlock;
 
 public final class ModBlocks {
 	public static final Block FILTER_HOPPER = register(
 		"filter_hopper",
 		FilterHopperBlock::new,
+		BlockBehaviour.Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().strength(3.0F, 4.8F).sound(SoundType.METAL).noOcclusion()
+	);
+
+	public static final Block MULTI_FILTER_HOPPER = register(
+		"multi_filter_hopper",
+		MultiFilterHopperBlock::new,
 		BlockBehaviour.Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().strength(3.0F, 4.8F).sound(SoundType.METAL).noOcclusion()
 	);
 
@@ -46,6 +53,7 @@ public final class ModBlocks {
 	public static void initialize() {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.REDSTONE_BLOCKS).register(output -> {
 			output.accept(FILTER_HOPPER);
+			output.accept(MULTI_FILTER_HOPPER);
 			output.accept(SHULKER_LOADER);
 		});
 	}
