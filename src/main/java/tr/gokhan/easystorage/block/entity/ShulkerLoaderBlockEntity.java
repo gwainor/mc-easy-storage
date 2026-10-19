@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
+import tr.gokhan.easystorage.menu.ShulkerLoaderMenu;
 import tr.gokhan.easystorage.registry.ModBlockEntities;
 
 /**
@@ -287,6 +288,6 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 
 	@Override
 	protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-		throw new UnsupportedOperationException("Shulker Loader menu arrives in a later task");
+		return new ShulkerLoaderMenu(containerId, inventory, this);
 	}
 }

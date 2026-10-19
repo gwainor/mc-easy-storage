@@ -9,7 +9,11 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.GameType;
+import tr.gokhan.easystorage.menu.ShulkerLoaderMenu;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -365,5 +369,77 @@ public class ShulkerLoaderGameTest {
 				helper.assertTrue(fresh.isDropPending(), "pending flag survives save/load");
 			})
 			.thenSucceed();
+	}
+
+	private static ItemStack stackableBox(DyeColor color, int count) {
+		ItemStack box = new ItemStack(Items.DYED_SHULKER_BOX.pick(color), count);
+		box.set(DataComponents.MAX_STACK_SIZE, 64);
+		return box;
+	}
+
+	private static int inventoryCount(Player player, net.minecraft.world.item.Item item) {
+		return player.getInventory().countItem(item);
+	}
+
+	@GameTest
+	public void shiftClickLoadsOneBox(GameTestHelper helper) {
+		ShulkerLoaderBlockEntity loader = loader(helper);
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		ShulkerLoaderMenu menu = new ShulkerLoaderMenu(0, player.getInventory(), loader);
+		int playerSlot = ShulkerLoaderMenu.CONTENT_END;
+		menu.getSlot(playerSlot).set(stackableBox(DyeColor.RED, 3));
+
+		menu.clicked(playerSlot, 0, ContainerInput.QUICK_MOVE, player);
+		helper.assertTrue(loader.hasBox(), "box loaded");
+		helper.assertValueEqual(loader.getBox().getCount(), 1, "loader holds exactly one box");
+		helper.assertValueEqual(menu.getSlot(playerSlot).getItem().getCount(), 2, "player keeps the rest");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void shiftClickItemsNeedBox(GameTestHelper helper) {
+		ShulkerLoaderBlockEntity loader = loader(helper);
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		ShulkerLoaderMenu menu = new ShulkerLoaderMenu(0, player.getInventory(), loader);
+		int playerSlot = ShulkerLoaderMenu.CONTENT_END;
+		menu.getSlot(playerSlot).set(new ItemStack(Items.DIAMOND, 5));
+
+		menu.clicked(playerSlot, 0, ContainerInput.QUICK_MOVE, player);
+		helper.assertTrue(loader.isEmpty(), "nothing moves without a box");
+		helper.assertValueEqual(menu.getSlot(playerSlot).getItem().getCount(), 5, "player keeps diamonds");
+
+		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, new ItemStack(Items.SHULKER_BOX));
+		menu.clicked(playerSlot, 0, ContainerInput.QUICK_MOVE, player);
+		helper.assertValueEqual(loader.countItem(Items.DIAMOND), 5, "diamonds loaded");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void shiftClickBoxOutKeepsContents(GameTestHelper helper) {
+		ShulkerLoaderBlockEntity loader = loader(helper);
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		ShulkerLoaderMenu menu = new ShulkerLoaderMenu(0, player.getInventory(), loader);
+		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, boxWith(0, new ItemStack(Items.DIAMOND, 4)));
+		menu.getSlot(ShulkerLoaderMenu.CONTENT_START + 3).set(new ItemStack(Items.DIAMOND, 3));
+
+		menu.clicked(ShulkerLoaderMenu.BOX_SLOT, 0, ContainerInput.QUICK_MOVE, player);
+		helper.assertTrue(loader.isEmpty(), "loader emptied");
+		helper.assertValueEqual(inventoryCount(player, Items.DIAMOND), 0, "no loose diamonds");
+		ItemStack box = player.getInventory().getNonEquipmentItems().stream().filter(ShulkerLoaderBlockEntity::isShulkerBox).findFirst().orElse(ItemStack.EMPTY);
+		helper.assertValueEqual(stored(box, Items.DIAMOND), 7, "box carries all contents");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void contentSlotsLockedWithoutBox(GameTestHelper helper) {
+		ShulkerLoaderBlockEntity loader = loader(helper);
+		Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+		ShulkerLoaderMenu menu = new ShulkerLoaderMenu(0, player.getInventory(), loader);
+		ItemStack diamond = new ItemStack(Items.DIAMOND);
+		helper.assertFalse(menu.getSlot(ShulkerLoaderMenu.CONTENT_START).mayPlace(diamond), "locked without box");
+		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, new ItemStack(Items.SHULKER_BOX));
+		helper.assertTrue(menu.getSlot(ShulkerLoaderMenu.CONTENT_START).mayPlace(diamond), "open with box");
+		helper.assertFalse(menu.getSlot(ShulkerLoaderMenu.CONTENT_START).mayPlace(new ItemStack(Items.SHULKER_BOX)), "no nested boxes");
+		helper.succeed();
 	}
 }
