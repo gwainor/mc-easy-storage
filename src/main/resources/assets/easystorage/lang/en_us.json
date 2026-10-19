@@ -1,4 +1,6 @@
 {
   "block.easystorage.filter_hopper": "Filter Hopper",
-  "container.easystorage.filter_hopper": "Filter Hopper"
+  "container.easystorage.filter_hopper": "Filter Hopper",
+  "block.easystorage.shulker_loader": "Shulker Loader",
+  "container.easystorage.shulker_loader": "Shulker Loader"
 }

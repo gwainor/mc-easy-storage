@@ -1,7 +1,7 @@
 # Easy Storage
 
 Fabric mod for Minecraft 26.2. Adds single blocks that replace complex redstone
-contraptions: item sorting and more.
+contraptions: item sorting, shulker box loading and more.
 
 ## Requirements
 
@@ -29,6 +29,21 @@ filter hopper in an SS3 item sorter, without comparators or dummy items.
 - Holds up to 5 stacks. Pushes like a hopper, at hopper speed.
 - A redstone signal locks it. Comparators read only the 5 buffer slots.
 - Recipe (shapeless): hopper + comparator + observer.
+
+### Shulker Loader
+
+A dropper-like block that packs items into a shulker box and drops the box when
+it is full. Put it under a Filter Hopper at the end of a sorter line.
+
+- Hoppers or droppers feed it one empty shulker box, then items. It holds one box
+  at a time; extra boxes are refused until the current one leaves.
+- A full box is dropped out of the orange front face like a dropper (into a
+  container there, or as an item). A redstone signal locks it.
+- A redstone pulse drops the box right away, even if it is not full; a steady
+  signal only locks it.
+- The box keeps its contents, colour and name. The GUI shows the box slot and its
+  27 content slots.
+- Recipe (shapeless): dropper + hopper + shulker shell.
 
 ## Tests
 
