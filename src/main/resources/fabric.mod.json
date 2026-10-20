@@ -7,7 +7,11 @@
 	"authors": [
 		"Gokhan Ozturk"
 	],
-	"contact": {},
+	"contact": {
+		"homepage": "https://github.com/gwainor/mc-easy-storage",
+		"sources": "https://github.com/gwainor/mc-easy-storage",
+		"issues": "https://github.com/gwainor/mc-easy-storage/issues"
+	},
 	"license": "MIT",
 	"icon": "assets/easystorage/icon.png",
 	"environment": "*",
