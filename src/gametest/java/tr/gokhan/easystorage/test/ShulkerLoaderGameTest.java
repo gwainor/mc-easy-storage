@@ -333,10 +333,7 @@ public class ShulkerLoaderGameTest {
 	@GameTest(maxTicks = 100)
 	public void blockedDropStaysPending(GameTestHelper helper) {
 		ShulkerLoaderBlockEntity loader = loader(helper);
-		ChestBlockEntity chest = chestAt(helper, FRONT);
-		for (int i = 0; i < chest.getContainerSize(); i++) {
-			chest.setItem(i, new ItemStack(Items.STONE, 64));
-		}
+		ChestBlockEntity chest = fullChestInFront(helper);
 		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, boxWith(0, new ItemStack(Items.DIAMOND, 3)));
 		helper.setBlock(POWER, Blocks.REDSTONE_BLOCK);
 		helper.startSequence()
@@ -347,33 +344,76 @@ public class ShulkerLoaderGameTest {
 			.thenSucceed();
 	}
 
+	private static ChestBlockEntity fullChestInFront(GameTestHelper helper) {
+		ChestBlockEntity chest = chestAt(helper, FRONT);
+		for (int i = 0; i < chest.getContainerSize(); i++) {
+			chest.setItem(i, new ItemStack(Items.STONE, 64));
+		}
+		return chest;
+	}
+
 	@GameTest(maxTicks = 60)
-	public void hopperBelowPullsContentsNotBox(GameTestHelper helper) {
+	public void hopperBelowLeavesContents(GameTestHelper helper) {
 		ShulkerLoaderBlockEntity loader = loader(helper);
 		bottomChestLayout(helper);
 		ChestBlockEntity bottom = helper.getBlockEntity(BOTTOM, ChestBlockEntity.class);
 		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, boxWith(0, new ItemStack(Items.DIAMOND, 3)));
+		helper.runAfterDelay(30, () -> {
+			helper.assertTrue(loader.hasBox() && loader.countItem(Items.DIAMOND) == 3, "box keeps its contents");
+			helper.assertTrue(bottom.isEmpty(), "hopper pulls nothing");
+			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 60)
+	public void hopperBelowPullsBoxWhenDropBlocked(GameTestHelper helper) {
+		ShulkerLoaderBlockEntity loader = loader(helper);
+		fullChestInFront(helper);
+		bottomChestLayout(helper);
+		ChestBlockEntity bottom = helper.getBlockEntity(BOTTOM, ChestBlockEntity.class);
+		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, boxWith(0, new ItemStack(Items.DIAMOND, 3)));
+		helper.setBlock(POWER, Blocks.REDSTONE_BLOCK);
 		helper.succeedWhen(() -> {
-			helper.assertTrue(bottom.countItem(Items.DIAMOND) == 3, "bottom chest should hold 3 diamonds");
-			helper.assertTrue(loader.hasBox(), "box stays in loader");
-			helper.assertTrue(bottom.countItem(Items.SHULKER_BOX) == 0, "no box in bottom chest");
+			helper.assertTrue(holdsBox(bottom, Items.DIAMOND, 3), "bottom chest should hold the box with its contents");
+			helper.assertFalse(loader.hasBox(), "loader should be empty");
 		});
 	}
 
 	@GameTest(maxTicks = 80)
-	public void hopperBelowWorksWhileLocked(GameTestHelper helper) {
+	public void hopperBelowWaitsWhileLocked(GameTestHelper helper) {
 		ShulkerLoaderBlockEntity loader = loader(helper);
 		bottomChestLayout(helper);
 		ChestBlockEntity bottom = helper.getBlockEntity(BOTTOM, ChestBlockEntity.class);
 		helper.setBlock(POWER, Blocks.REDSTONE_BLOCK);
 		helper.startSequence()
 			.thenIdle(5)
-			.thenExecute(() -> loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, boxWith(0, new ItemStack(Items.DIAMOND, 3))))
-			.thenWaitUntil(() -> {
-				helper.assertTrue(bottom.countItem(Items.DIAMOND) == 3, "locked loader still gives contents");
-				helper.assertTrue(loader.hasBox(), "box stays in loader");
+			.thenExecute(() -> loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, boxOf(new ItemStack(Items.COBBLESTONE, 64))))
+			.thenIdle(30)
+			.thenExecute(() -> {
+				helper.assertTrue(loader.hasBox() && loader.isContentFull(), "locked loader keeps the full box");
+				helper.assertTrue(bottom.isEmpty(), "hopper pulls nothing");
 			})
 			.thenSucceed();
+	}
+
+	@GameTest(maxTicks = 60)
+	public void failedBoxPullKeepsBox(GameTestHelper helper) {
+		ShulkerLoaderBlockEntity loader = loader(helper);
+		fullChestInFront(helper);
+		helper.setBlock(BELOW, Blocks.HOPPER);
+		BaseContainerBlockEntity hopper = helper.getBlockEntity(BELOW, BaseContainerBlockEntity.class);
+		// Not full, so the hopper tries to pull, but no slot can take the box.
+		for (int i = 0; i < hopper.getContainerSize(); i++) {
+			hopper.setItem(i, new ItemStack(Items.DIRT));
+		}
+		loader.setItem(ShulkerLoaderBlockEntity.BOX_SLOT, boxWith(0, new ItemStack(Items.DIAMOND, 3)));
+		helper.setBlock(POWER, Blocks.REDSTONE_BLOCK);
+		helper.runAfterDelay(30, () -> {
+			helper.assertTrue(loader.hasBox() && loader.countItem(Items.DIAMOND) == 3, "box and contents stay in loader");
+			helper.assertTrue(loader.isDropPending(), "drop still pending");
+			helper.assertTrue(hopper.countItem(Items.SHULKER_BOX) == 0, "hopper holds no box");
+			helper.succeed();
+		});
 	}
 
 	@GameTest(maxTicks = 100)

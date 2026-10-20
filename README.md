@@ -26,6 +26,7 @@ Packs items into shulker boxes and pushes out each box once it's full. Put one a
 
 - Feed it an empty shulker box, then items. When the box is full, it gets dropped out the front like a dropper does (into a container, or as an item).
 - A redstone pulse ejects the box early. A steady signal locks it.
+- Hoppers never pull items out of the box. A hopper below takes the box itself once it's ready to drop, so you can chain hoppers into stacked chests for extra space.
 - Boxes keep their color, name and contents.
 - **Recipe (shapeless):** Dropper + Hopper + Shulker Shell
 

@@ -44,6 +44,8 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 
 	private NonNullList<ItemStack> items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
 	private boolean pendingDrop;
+	// The box a hopper last took; vanilla hands this same stack back via setItem when it cannot hold it.
+	private ItemStack takenBox = ItemStack.EMPTY;
 
 	public ShulkerLoaderBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.SHULKER_LOADER, pos, state);
@@ -97,10 +99,14 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 			loader.pendingDrop = false;
 			return;
 		}
-		// A pending drop fires even while powered; a fresh full-box drop needs the Loader unpowered.
-		if ((loader.pendingDrop || (!state.getValue(ShulkerLoaderBlock.TRIGGERED) && loader.isContentFull())) && !loader.tryDrop(level, pos, state.getValue(ShulkerLoaderBlock.FACING))) {
+		if (loader.isReadyToDrop(state) && !loader.tryDrop(level, pos, state.getValue(ShulkerLoaderBlock.FACING))) {
 			loader.pendingDrop = true;
 		}
+	}
+
+	/** A pending drop fires even while powered; a fresh full-box drop needs the Loader unpowered. */
+	private boolean isReadyToDrop(BlockState state) {
+		return this.pendingDrop || (!state.getValue(ShulkerLoaderBlock.TRIGGERED) && this.isContentFull());
 	}
 
 	private boolean tryDrop(Level level, BlockPos pos, Direction facing) {
@@ -174,7 +180,9 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 		}
 		// Hoppers can leave the outgoing box stale (restored counts skip setChanged), so write it back first.
 		this.writeContentsToBox();
-		this.pendingDrop = false;
+		// A returned box keeps its pending drop; a new box starts fresh.
+		this.pendingDrop = this.pendingDrop && stack == this.takenBox;
+		this.takenBox = ItemStack.EMPTY;
 		this.items.set(BOX_SLOT, stack);
 		stack.limitSize(this.getMaxStackSize(stack));
 		this.loadContentsFromBox();
@@ -186,9 +194,10 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 		if (slot != BOX_SLOT) {
 			return super.removeItemNoUpdate(slot);
 		}
+		// pendingDrop is left for serverTick to clear, in case the box comes straight back.
 		this.writeContentsToBox();
-		this.pendingDrop = false;
 		ItemStack box = this.items.set(BOX_SLOT, ItemStack.EMPTY);
+		this.takenBox = box;
 		this.clearContents();
 		return box;
 	}
@@ -240,7 +249,8 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 
 	@Override
 	public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction direction) {
-		return slot != BOX_SLOT;
+		// Contents stay in the box; a hopper may only take the box once it would drop anyway.
+		return slot == BOX_SLOT && this.isReadyToDrop(this.getBlockState());
 	}
 
 	// --- Persistence ---
