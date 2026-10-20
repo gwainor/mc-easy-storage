@@ -30,7 +30,7 @@ Packs items into shulker boxes and pushes out each box once it's full. Put one a
 - **Recipe (shapeless):** Dropper + Hopper + Shulker Shell
 
 ## Requirements
-- Minecraft 26.2
+- Minecraft 26.2 or 26.3 (separate downloads)
 - Fabric Loader 0.19.5+
 - [Fabric API](https://modrinth.com/mod/fabric-api)
 

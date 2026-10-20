@@ -1,6 +1,5 @@
 package tr.gokhan.easystorage.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -30,18 +29,12 @@ import tr.gokhan.easystorage.block.entity.ShulkerLoaderBlockEntity;
 
 /** Holds one shulker box and lets hoppers fill it in place. TRIGGERED is true while powered (locked). */
 public class ShulkerLoaderBlock extends BaseEntityBlock {
-	public static final MapCodec<ShulkerLoaderBlock> CODEC = simpleCodec(ShulkerLoaderBlock::new);
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
 	public static final BooleanProperty TRIGGERED = BlockStateProperties.TRIGGERED;
 
 	public ShulkerLoaderBlock(BlockBehaviour.Properties properties) {
 		super(properties);
 		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(TRIGGERED, false));
-	}
-
-	@Override
-	public MapCodec<ShulkerLoaderBlock> codec() {
-		return CODEC;
 	}
 
 	@Override

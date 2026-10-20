@@ -1,6 +1,5 @@
 package tr.gokhan.easystorage.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -12,15 +11,9 @@ import tr.gokhan.easystorage.registry.ModBlockEntities;
 
 /** Filter Hopper variant with 27 filter slots. */
 public class MultiFilterHopperBlock extends FilterHopperBlock {
-	public static final MapCodec<MultiFilterHopperBlock> CODEC = simpleCodec(MultiFilterHopperBlock::new);
 
 	public MultiFilterHopperBlock(BlockBehaviour.Properties properties) {
 		super(properties);
-	}
-
-	@Override
-	public MapCodec<? extends FilterHopperBlock> codec() {
-		return CODEC;
 	}
 
 	@Override
