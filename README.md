@@ -1,63 +1,54 @@
 # Easy Storage
 
-Fabric mod for Minecraft 26.2. Adds single blocks that replace complex redstone
-contraptions: item sorting, shulker box loading and more.
+Tired of building complex redstone contraptions for your storage when a single block could do the job?
+
+ImpulseSV came up with the [SS3 item filter](https://www.youtube.com/watch?v=NHjWYCDYJ4s) 12 years ago, and Mojang still hasn't added anything to solve storage. Easy Storage solves it with 3 simple blocks: no comparators, no dummy items, no redstone wiring. It works with any item: stackable, 16-stackable (ender pearls, eggs) and unstackable (tools, armor, potions).
+
+## Blocks
+
+### Filter Hopper
+A hopper that only accepts the item you put in its filter slot. It's a drop-in replacement for the filter in an SS3 sorter.
+
+- Put one item in the filter slot. Only that item type gets pulled in, whether it stacks to 64, 16 or not at all. Enchantments, durability and names are ignored, so every damaged pickaxe or enchanted book still matches.
+- Holds 5 stacks and moves items at normal hopper speed.
+- A redstone signal locks it. Comparators read the buffer as they would a normal hopper.
+- **Recipe (shapeless):** Hopper + Comparator + Observer
+
+### Multi Filter Hopper
+A Filter Hopper with 27 filter slots, so one hopper can sort a whole category: all your ores, all your wood types, all your farm drops.
+
+- Accepts an item if it matches any filter slot.
+- Same speed, buffer, redstone lock and comparator behavior as the Filter Hopper.
+- **Recipe (shapeless):** Filter Hopper + Chest + Diamond
+
+### Shulker Loader
+Packs items into shulker boxes and pushes out each box once it's full. Put one at the end of a sorter line and get boxes ready to carry away.
+
+- Feed it an empty shulker box, then items. When the box is full, it gets dropped out the front like a dropper does (into a container, or as an item).
+- A redstone pulse ejects the box early. A steady signal locks it.
+- Boxes keep their color, name and contents.
+- **Recipe (shapeless):** Dropper + Hopper + Shulker Shell
 
 ## Requirements
+- Minecraft 26.2
+- Fabric Loader 0.19.5+
+- [Fabric API](https://modrinth.com/mod/fabric-api)
 
-- Java 25 (`brew install openjdk@25`)
-- Minecraft 26.2, Fabric Loader 0.19.5+, Fabric API
+Needs to be installed on both client and server.
 
-## Build and run
+## Issues & Source
+Bug reports and source code: [GitHub](https://github.com/gwainor/mc-easy-storage)
+
+## Development
+
+Requires Java 25 (`brew install openjdk@25`).
 
 ```sh
 export JAVA_HOME=/opt/homebrew/opt/openjdk@25   # if Java 25 is not your default
 ./gradlew build        # jar in build/libs/
 ./gradlew runClient    # dev client
 ./gradlew runServer    # dev server
-```
-
-## Blocks
-
-### Filter Hopper
-
-A hopper that only accepts items matching its filter. Drop-in replacement for the
-filter hopper in an SS3 item sorter, without comparators or dummy items.
-
-- Put one item in the filter slot (left). Only that item type is pulled in
-  (enchantments, damage and names are ignored).
-- Holds up to 5 stacks. Pushes like a hopper, at hopper speed.
-- A redstone signal locks it. Comparators read only the 5 buffer slots.
-- Recipe (shapeless): hopper + comparator + observer.
-
-### Multi Filter Hopper
-
-A Filter Hopper with 27 filter slots (a 3x9 grid) instead of one, so a single
-hopper can sort a whole set of item types.
-
-- An item is accepted if it matches any filter slot. Empty slots match nothing.
-- Same buffer, speed, redstone lock and comparator behavior as the Filter Hopper.
-- Recipe (shapeless): filter hopper + chest + diamond.
-
-### Shulker Loader
-
-A dropper-like block that packs items into a shulker box and drops the box when
-it is full. Put it under a Filter Hopper at the end of a sorter line.
-
-- Hoppers or droppers feed it one empty shulker box, then items. It holds one box
-  at a time; extra boxes are refused until the current one leaves.
-- A full box is dropped out of the orange front face like a dropper (into a
-  container there, or as an item). A redstone signal locks it.
-- A redstone pulse drops the box right away, even if it is not full; a steady
-  signal only locks it.
-- The box keeps its contents, colour and name. The GUI shows the box slot and its
-  27 content slots.
-- Recipe (shapeless): dropper + hopper + shulker shell.
-
-## Tests
-
-```sh
-./gradlew runGameTest   # in-world GameTests (also run by ./gradlew build)
+./gradlew runGameTest  # in-world GameTests (also run by ./gradlew build)
 ```
 
 Placeholder textures are generated with `python3 tools/placeholder_textures.py`.
