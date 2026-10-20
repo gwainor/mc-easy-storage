@@ -1,7 +1,6 @@
 package tr.gokhan.easystorage.block;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.serialization.MapCodec;
 import java.util.Map;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
@@ -46,7 +45,6 @@ import tr.gokhan.easystorage.registry.ModBlockEntities;
  * redstone locking and comparator output mirror the vanilla {@link net.minecraft.world.level.block.HopperBlock}.
  */
 public class FilterHopperBlock extends BaseEntityBlock {
-	public static final MapCodec<FilterHopperBlock> CODEC = simpleCodec(FilterHopperBlock::new);
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING_HOPPER;
 	public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 	private final Function<BlockState, VoxelShape> shapes;
@@ -61,11 +59,6 @@ public class FilterHopperBlock extends BaseEntityBlock {
 			.putAll(Shapes.rotateHorizontal(Shapes.or(inside, Block.boxZ(4.0, 8.0, 10.0, 0.0, 4.0))))
 			.put(Direction.DOWN, inside)
 			.build();
-	}
-
-	@Override
-	public MapCodec<? extends FilterHopperBlock> codec() {
-		return CODEC;
 	}
 
 	private Function<BlockState, VoxelShape> makeShapes(VoxelShape inside) {
