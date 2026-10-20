@@ -64,7 +64,7 @@ public class FilterHopperBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public MapCodec<FilterHopperBlock> codec() {
+	public MapCodec<? extends FilterHopperBlock> codec() {
 		return CODEC;
 	}
 
@@ -100,9 +100,13 @@ public class FilterHopperBlock extends BaseEntityBlock {
 		return new FilterHopperBlockEntity(pos, state);
 	}
 
+	protected BlockEntityType<? extends FilterHopperBlockEntity> blockEntityType() {
+		return ModBlockEntities.FILTER_HOPPER;
+	}
+
 	@Override
 	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-		return level.isClientSide() ? null : createTickerHelper(type, ModBlockEntities.FILTER_HOPPER, FilterHopperBlockEntity::pushItemsTick);
+		return level.isClientSide() ? null : createTickerHelper(type, this.blockEntityType(), FilterHopperBlockEntity::pushItemsTick);
 	}
 
 	@Override

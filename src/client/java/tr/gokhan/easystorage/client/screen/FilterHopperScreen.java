@@ -10,9 +10,8 @@ import tr.gokhan.easystorage.menu.FilterHopperMenu;
 /**
  * Placeholder screen drawn with flat fills; final art will replace it with a texture.
  */
-public class FilterHopperScreen extends AbstractContainerScreen<FilterHopperMenu> {
+public class FilterHopperScreen<T extends FilterHopperMenu> extends AbstractContainerScreen<T> {
 	private static final int WIDTH = 176;
-	private static final int HEIGHT = 133;
 	private static final int PANEL = 0xFFC6C6C6;
 	private static final int PANEL_LIGHT = 0xFFFFFFFF;
 	private static final int PANEL_DARK = 0xFF555555;
@@ -21,8 +20,8 @@ public class FilterHopperScreen extends AbstractContainerScreen<FilterHopperMenu
 	private static final int FILTER_TINT = 0xFF3A6EA5;
 	private static final int ARROW = 0xFF555555;
 
-	public FilterHopperScreen(FilterHopperMenu menu, Inventory inventory, Component title) {
-		super(menu, inventory, title, WIDTH, HEIGHT);
+	public FilterHopperScreen(T menu, Inventory inventory, Component title) {
+		super(menu, inventory, title, WIDTH, menu.screenHeight());
 		this.inventoryLabelY = this.imageHeight - 94;
 	}
 
@@ -36,15 +35,21 @@ public class FilterHopperScreen extends AbstractContainerScreen<FilterHopperMenu
 		graphics.fill(x, y, x + this.imageWidth - 1, y + this.imageHeight - 1, PANEL_LIGHT);
 		graphics.fill(x + 1, y + 1, x + this.imageWidth - 1, y + this.imageHeight - 1, PANEL);
 
-		// Tinted frame marks the filter slot.
-		int fx = x + FilterHopperMenu.FILTER_X;
-		int fy = y + FilterHopperMenu.SLOT_Y;
-		graphics.fill(fx - 3, fy - 3, fx + 19, fy + 19, FILTER_TINT);
+		// Tinted frame marks each filter slot.
+		for (Slot slot : this.menu.slots) {
+			if (this.menu.isFilterSlot(slot)) {
+				int fx = x + slot.x;
+				int fy = y + slot.y;
+				graphics.fill(fx - 3, fy - 3, fx + 19, fy + 19, FILTER_TINT);
+			}
+		}
 
-		// Arrow from filter to buffer.
-		int ay = fy + 7;
-		graphics.fill(x + 40, ay, x + 54, ay + 2, ARROW);
-		graphics.fill(x + 54, ay - 2, x + 56, ay + 4, ARROW);
+		// Arrow from filter to buffer (single-filter layout only).
+		if (this.menu.filterSize() == 1) {
+			int ay = y + FilterHopperMenu.SLOT_Y + 7;
+			graphics.fill(x + 40, ay, x + 54, ay + 2, ARROW);
+			graphics.fill(x + 54, ay - 2, x + 56, ay + 4, ARROW);
+		}
 
 		for (Slot slot : this.menu.slots) {
 			int sx = x + slot.x;

@@ -4,6 +4,9 @@ import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -17,6 +20,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 import tr.gokhan.easystorage.block.FilterHopperBlock;
 import tr.gokhan.easystorage.block.entity.FilterHopperBlockEntity;
@@ -192,6 +196,28 @@ public class FilterHopperGameTest {
 		helper.setBlock(HOPPER, ModBlocks.FILTER_HOPPER);
 		helper.getLevel().destroyBlock(helper.absolutePos(HOPPER), true);
 		helper.assertItemEntityPresent(ModBlocks.FILTER_HOPPER.asItem(), HOPPER, 2.0);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void legacyFilterKeyLoadsIntoFirstSlot(GameTestHelper helper) {
+		var registries = helper.getLevel().registryAccess();
+		CompoundTag tag = new CompoundTag();
+		tag.put("filter", ItemStack.CODEC.encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), new ItemStack(Items.DIAMOND)).getOrThrow());
+		FilterHopperBlockEntity fresh = new FilterHopperBlockEntity(helper.absolutePos(HOPPER), ModBlocks.FILTER_HOPPER.defaultBlockState());
+		fresh.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, registries, tag));
+		helper.assertTrue(fresh.getFilterItem().is(Items.DIAMOND), "legacy filter key loads into slot 0");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void saveLoadRoundTripKeepsFilter(GameTestHelper helper) {
+		var registries = helper.getLevel().registryAccess();
+		FilterHopperBlockEntity filterHopper = column(helper, new ItemStack(Items.DIAMOND));
+		CompoundTag tag = filterHopper.saveWithoutMetadata(registries);
+		FilterHopperBlockEntity fresh = new FilterHopperBlockEntity(helper.absolutePos(HOPPER), filterHopper.getBlockState());
+		fresh.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, registries, tag));
+		helper.assertTrue(fresh.getFilterItem().is(Items.DIAMOND), "reloaded hopper keeps filter");
 		helper.succeed();
 	}
 }

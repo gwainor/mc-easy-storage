@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    "easystorage:filter_hopper",
+    "minecraft:chest",
+    "minecraft:diamond"
+  ],
+  "result": {
+    "id": "easystorage:multi_filter_hopper"
+  }
+}

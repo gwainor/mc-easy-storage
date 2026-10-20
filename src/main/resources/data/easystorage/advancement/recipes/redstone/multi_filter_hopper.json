@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_filter_hopper": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          { "items": "easystorage:filter_hopper" }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "easystorage:multi_filter_hopper"
+      }
+    }
+  },
+  "requirements": [
+    ["has_the_recipe", "has_filter_hopper"]
+  ],
+  "rewards": {
+    "recipes": ["easystorage:multi_filter_hopper"]
+  }
+}

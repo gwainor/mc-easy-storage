@@ -17,6 +17,11 @@ BASE = (0x3A, 0x6E, 0xA5)
 LIGHT = (0x6F, 0x9C, 0xCC)
 DARK = (0x22, 0x3F, 0x60)
 
+# Multi Filter Hopper: same layout, purple.
+MULTI_BASE = (0x7A, 0x3E, 0xA5)
+MULTI_LIGHT = (0xA5, 0x6F, 0xCC)
+MULTI_DARK = (0x4A, 0x22, 0x60)
+
 # Shulker Loader: same iron; orange marks the output face (mod-wide convention).
 ORANGE = (0xE0, 0x7A, 0x1F)
 HOLE = (0x10, 0x10, 0x10)
@@ -80,6 +85,9 @@ def main():
     png(OUT / "filter_hopper_outside.png", texture(1, BASE, LIGHT, DARK))
     png(OUT / "filter_hopper_top.png", texture(2, LIGHT, shade(LIGHT, 30), BASE))
     png(OUT / "filter_hopper_inside.png", texture(3, DARK, BASE, shade(DARK, -20)))
+    png(OUT / "multi_filter_hopper_outside.png", texture(1, MULTI_BASE, MULTI_LIGHT, MULTI_DARK))
+    png(OUT / "multi_filter_hopper_top.png", texture(2, MULTI_LIGHT, shade(MULTI_LIGHT, 30), MULTI_BASE))
+    png(OUT / "multi_filter_hopper_inside.png", texture(3, MULTI_DARK, MULTI_BASE, shade(MULTI_DARK, -20)))
     png(OUT / "shulker_loader_side.png", texture(4, BASE, LIGHT, DARK))
     png(OUT / "shulker_loader_front.png", face(5, True))
     png(OUT / "shulker_loader_back.png", face(6, False))

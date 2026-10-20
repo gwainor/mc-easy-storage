@@ -1,4 +1,4 @@
 {
   "replace": false,
-  "values": ["easystorage:filter_hopper", "easystorage:shulker_loader"]
+  "values": ["easystorage:filter_hopper", "easystorage:multi_filter_hopper", "easystorage:shulker_loader"]
 }
