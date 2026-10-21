@@ -87,11 +87,11 @@ public class ShulkerLoaderGameTest {
 	}
 
 	@GameTest
-	public void multiCountBoxOfferIsRefused(GameTestHelper helper) {
+	public void multiCountBoxOfferKeepsOneSpillsRest(GameTestHelper helper) {
 		ShulkerLoaderBlockEntity loader = loader(helper);
-		ItemStack rest = HopperBlockEntity.addItem(null, loader, stackable(3), Direction.UP);
-		helper.assertTrue(rest.getCount() == 3, "all three boxes should be refused");
-		helper.assertFalse(loader.hasBox(), "loader must stay empty");
+		HopperBlockEntity.addItem(null, loader, stackable(3), Direction.UP);
+		helper.assertTrue(loader.getBox().getCount() == 1, "loader holds exactly one box");
+		helper.assertItemEntityCountIs(Items.SHULKER_BOX, LOADER, 2.0, 2);
 		helper.succeed();
 	}
 
