@@ -184,7 +184,10 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 		this.pendingDrop = this.pendingDrop && stack == this.takenBox;
 		this.takenBox = ItemStack.EMPTY;
 		this.items.set(BOX_SLOT, stack);
-		stack.limitSize(this.getMaxStackSize(stack));
+		// Vanilla addItem can place a whole stacked-box stack here; spill the extras rather than delete them.
+		if (stack.getCount() > 1 && this.level != null) {
+			Containers.dropItemStack(this.level, this.worldPosition.getX(), this.worldPosition.getY() + 1, this.worldPosition.getZ(), stack.split(stack.getCount() - 1));
+		}
 		this.loadContentsFromBox();
 		super.setChanged();
 	}
@@ -224,7 +227,8 @@ public class ShulkerLoaderBlockEntity extends BaseContainerBlockEntity implement
 	@Override
 	public boolean canPlaceItem(int slot, ItemStack stack) {
 		if (slot == BOX_SLOT) {
-			return isShulkerBox(stack) && stack.getCount() == 1 && !this.hasBox();
+			// No count check: Lithium hoppers ask with the whole source stack (Carpet stacks boxes), then move one.
+			return isShulkerBox(stack) && !this.hasBox();
 		}
 		return this.hasBox() && stack.getItem().canFitInsideContainerItems();
 	}
